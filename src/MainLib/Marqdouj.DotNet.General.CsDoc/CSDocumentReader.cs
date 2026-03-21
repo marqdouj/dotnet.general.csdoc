@@ -5,7 +5,7 @@ using System.Xml.Linq;
 namespace Marqdouj.DotNet.General.CsDoc
 {
     /// <summary>
-    /// Creates instances of <see cref="CDocument{T}"/>.
+    /// Creates instances of <see cref="CSDocument{T}"/>.
     /// </summary>
     public sealed class CSDocumentReader
     {
@@ -96,14 +96,17 @@ namespace Marqdouj.DotNet.General.CsDoc
         /// <summary>
         /// Creates an instance of <see cref="ICDocument"/> based on <typeparamref name="T"/>
         /// </summary>
+        /// <param name="allMembers">
+        /// <see langword="true"/> to create items for all custom or override members; 
+        /// otherwise just those that have a <see cref="DisplayAttribute"/> or xml commment. Default is <see langword="true"/>. </param>
         /// <typeparam name="T">Must be <see langword="class"/> or <see langword="enum"/></typeparam>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public ICDocument CreateDocument<T>()
+        public ICDocument CreateDocument<T>(bool allMembers = true)
         {
             ValidateType<T>();
 
-            var doc = new CDocument<T>(xmlDoc);
+            var doc = new CSDocument<T>(xmlDoc, allMembers);
             var cdocAssemblyName = doc.Type.Assembly.GetName().Name;
 
             if (AssemblyName != cdocAssemblyName)

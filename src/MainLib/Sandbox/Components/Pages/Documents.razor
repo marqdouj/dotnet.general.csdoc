@@ -15,6 +15,8 @@
                           OptionValue="@(o => o.Value)"
                           TOption="Option<string>"
                           ValueChanged="@OnValueChanged" />
+
+            <FluentCheckbox Value="@includeAll" ValueChanged="@((e) => OnInCludeAllChange(e))">All Members</FluentCheckbox>
         </FluentToolbar>
 
         @if (document != null)
@@ -39,8 +41,14 @@
     private List<Option<string>> items = [];
     private ICDocument? document;
     private List<ICDocument> documents = [];
+    private bool includeAll;
 
     protected override void OnInitialized()
+    {
+        BuildDocuments(nameof(MyClass));
+    }
+
+    private void BuildDocuments(string name)
     {
         try
         {
@@ -49,17 +57,20 @@
 
             documents = new List<ICDocument>
             {
-                cdReader.CreateDocument<MyClass>(),
-                cdReader.CreateDocument<MyClass<MyClass>>(),
-                cdReader.CreateDocument<MyEnum>()
+                cdReader.CreateDocument<MyClass>(includeAll),
+                cdReader.CreateDocument<MyClass<MyClass>>(includeAll),
+                cdReader.CreateDocument<MyEnum>(includeAll)
             };
 
+            var options = new List<Option<string>>();
             foreach (var item in documents)
             {
-                items.Add(new Option<string>() { Text = item.Type.Name, Value = item.Type.Name });
+                options.Add(new Option<string>() { Text = item.Type.Name, Value = item.Type.Name });
             }
+            items.Clear();
+            items.AddRange(options);
 
-            OnValueChanged(nameof(MyClass));
+            OnValueChanged(name);
         }
         catch (Exception ex)
         {
@@ -70,6 +81,12 @@
         {
             StateHasChanged();
         }
+    }
+
+    private void OnInCludeAllChange(bool value)
+    {
+        includeAll = value;
+        BuildDocuments(document?.Type.Name ?? nameof(MyClass));
     }
 
     private void OnValueChanged(string? value)

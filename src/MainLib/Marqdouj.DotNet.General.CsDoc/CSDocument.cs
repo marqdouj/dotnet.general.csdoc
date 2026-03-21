@@ -45,11 +45,11 @@ namespace Marqdouj.DotNet.General.CsDoc
     {
         private readonly List<CSDocumentItem> items = [];
 
-        internal CSDocument(Type type, XDocument? xmlDoc)
+        internal CSDocument(Type type, XDocument? xmlDoc, bool allMembers)
         {
             Items = new ReadOnlyCollection<CSDocumentItem>(items);
             Type = type;
-            ProcessItems(xmlDoc);
+            ProcessItems(xmlDoc, allMembers);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Marqdouj.DotNet.General.CsDoc
         /// <returns></returns>
         public CSDocumentItem? GetItem(MemberTypes memberType, string name) => Items.FirstOrDefault(e => e.MemberType == memberType && (e.Name?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false));
 
-        private void ProcessItems(XDocument? xmlDoc)
+        private void ProcessItems(XDocument? xmlDoc, bool allMembers)
         {
             //Process the class
             var assemblyName = Type.Assembly.GetName().Name;
@@ -89,7 +89,7 @@ namespace Marqdouj.DotNet.General.CsDoc
             if (node != null)
                 comment = new CSDocumentXml(node, name, Type.Name);
 
-            if (attribute != null || comment != null)
+            if (allMembers || attribute != null || comment != null)
                 items.Add(new CSDocumentItem(Type.Name, MemberTypes.TypeInfo, attribute, comment));
 
             if (Type.IsEnum)
@@ -108,7 +108,7 @@ namespace Marqdouj.DotNet.General.CsDoc
                     if (propNode != null)
                         comment = new CSDocumentXml(propNode, propName, memberName);
 
-                    if (attribute != null || comment != null)
+                    if (allMembers || attribute != null || comment != null)
                         items.Add(new CSDocumentItem(memberName, MemberTypes.Field, attribute, comment));
                 }
             }
@@ -117,12 +117,18 @@ namespace Marqdouj.DotNet.General.CsDoc
                 //Process the members.
                 foreach (var member in Type.GetMembers(BindingFlags.Public | BindingFlags.Instance))
                 {
-                    bool isAccessor = member is MethodInfo m
-                        && m.DeclaringType?.GetProperties()
-                        .Any(p => p.GetMethod == m || p.SetMethod == m) == true;
+                    if (member is MethodInfo m)
+                    {
+                        var isAccessor = m.DeclaringType?.GetProperties().Any(p => p.GetMethod == m || p.SetMethod == m) == true;
+                        if (isAccessor) continue;
 
-                    if (isAccessor)
-                        continue;
+                        var isCustom = m.DeclaringType == Type;
+                        if (!isCustom)
+                        {
+                            bool isOverride = m.GetBaseDefinition().DeclaringType != m.DeclaringType;
+                            if (!isOverride) continue;
+                        }
+                    }
 
                     string? memberType = null;
                     var memberName = member.Name;
@@ -168,7 +174,7 @@ namespace Marqdouj.DotNet.General.CsDoc
                         if (propNode != null)
                             comment = new CSDocumentXml(propNode, propName, member.Name);
 
-                        if (attribute != null || comment != null)
+                        if (allMembers || attribute != null || comment != null)
                             items.Add(new CSDocumentItem(member.Name, member.MemberType, attribute, comment));
                     }
                 }
@@ -180,11 +186,11 @@ namespace Marqdouj.DotNet.General.CsDoc
     /// <see cref="ICDocument"/>
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal sealed class CDocument<T> : CSDocument
+    internal sealed class CSDocument<T> : CSDocument
     {
         private readonly List<CSDocumentItem> items = [];
 
-        internal CDocument(XDocument? xmlDoc) : base(typeof(T), xmlDoc) 
+        internal CSDocument(XDocument? xmlDoc, bool allMembers) : base(typeof(T), xmlDoc, allMembers) 
         { 
         }
     }

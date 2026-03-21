@@ -36,6 +36,21 @@ namespace Tests
             var doc = cdReader.CreateDocument<MyClass>();
 
             Assert.IsNotNull(doc);
+            Assert.HasCount(2, doc.Items);
+            Assert.AreEqual(summary, doc.Items.First().Comment?.Summary);
+            Assert.IsNotNull(doc.Items.First().DisplayAttribute);
+            Assert.AreEqual(displayName, doc.Items.First().DisplayAttribute?.Name);
+        }
+
+        [TestMethod]
+        public void CDocument_Add_NotAll()
+        {
+            const string displayName = "MyClass Name";
+            const string summary = "My test class.";
+
+            var doc = cdReader.CreateDocument<MyClass>(false);
+
+            Assert.IsNotNull(doc);
             Assert.HasCount(1, doc.Items);
             Assert.AreEqual(summary, doc.Items.First().Comment?.Summary);
             Assert.IsNotNull(doc.Items.First().DisplayAttribute);
@@ -76,6 +91,16 @@ namespace Tests
         public void CDocument_Add_Generic_Enum()
         {
             var doc = cdReader.CreateDocument<MyEnum>();
+
+            Assert.IsNotNull(doc);
+            Assert.HasCount(4, doc.Items);
+
+        }
+
+        [TestMethod]
+        public void CDocument_Add_Generic_Enum_NotAll()
+        {
+            var doc = cdReader.CreateDocument<MyEnum>(false);
 
             Assert.IsNotNull(doc);
             Assert.HasCount(3, doc.Items);
