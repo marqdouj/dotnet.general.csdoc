@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Marqdouj.DotNet.General.CsDoc/Marqdouj.DotNet.General.CsDoc.csproj" />
+  <Project Path="Sandbox.XmlLib/Sandbox.XmlLib.csproj" Id="31e45f3d-37fc-4f51-8fe8-5ad53844e752" />
+  <Project Path="Sandbox/Sandbox.csproj" Id="89e5f6fe-2867-4291-a85d-f30be4034f5a" />
+  <Project Path="Tests/Tests.csproj" Id="faacef2c-8db3-4089-8ad6-6ccf43689c9d" />
+</Solution>

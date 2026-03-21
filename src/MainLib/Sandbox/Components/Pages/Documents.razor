@@ -1,0 +1,79 @@
+﻿@page "/documents"
+@rendermode InteractiveServer
+@inject ILogger<Documents> Logger
+@inject IToastService ToastService
+
+<PageTitle>Documents</PageTitle>
+
+<FluentLayout>
+    <FluentHeader>Documents</FluentHeader>
+
+    <FluentStack Orientation="Orientation.Vertical">
+        <FluentToolbar>
+            <FluentSelect Items="@items"
+                          OptionText="@(o => o.Text)"
+                          OptionValue="@(o => o.Value)"
+                          TOption="Option<string>"
+                          ValueChanged="@OnValueChanged" />
+        </FluentToolbar>
+
+        @if (document != null)
+        {
+            <FluentCard>
+                <FluentLabel>Type: @document.Type.Name</FluentLabel>
+
+                <FluentDataGrid Items="@document?.Items.AsQueryable()" TGridItem="CSDocumentItem" MultiLine="true">
+                    <PropertyColumn Property="@(c => c.Name)" />
+                    <PropertyColumn Property="@(c => c.MemberType)" Title="Member Type" />
+                    <PropertyColumn Property="@(c => c.DisplayName)" Title="Display Name" />
+                    <PropertyColumn Property="@(c => c.Comment.Summary)" />
+                    <PropertyColumn Property="@(c => c.Comment.Remarks)" />
+                    <PropertyColumn Property="@(c => c.Comment.Returns)" />
+                </FluentDataGrid>
+            </FluentCard>
+        }
+    </FluentStack>
+</FluentLayout>
+
+@code {
+    private List<Option<string>> items = [];
+    private ICDocument? document;
+    private List<ICDocument> documents = [];
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            var cdReader = new CSDocumentReader("Sandbox.XmlLib");
+            cdReader.LoadXml(logger: Logger);
+
+            documents = new List<ICDocument>
+            {
+                cdReader.CreateDocument<MyClass>(),
+                cdReader.CreateDocument<MyClass<MyClass>>(),
+                cdReader.CreateDocument<MyEnum>()
+            };
+
+            foreach (var item in documents)
+            {
+                items.Add(new Option<string>() { Text = item.Type.Name, Value = item.Type.Name });
+            }
+
+            OnValueChanged(nameof(MyClass));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+
+    private void OnValueChanged(string? value)
+    {
+        document = documents.FirstOrDefault(e => e.Type.Name == value);
+    }
+}
