@@ -94,7 +94,7 @@ namespace Marqdouj.DotNet.General.CsDoc
         public Exception? LoadXmlException { get; internal set; }
 
         /// <summary>
-        /// Creates an instance of <see cref="ICDocument"/> based on <typeparamref name="T"/>
+        /// Creates an instance of <see cref="ICSDocument"/> based on <typeparamref name="T"/>
         /// </summary>
         /// <param name="allMembers">
         /// <see langword="true"/> to create items for all custom or override members; 
@@ -102,7 +102,7 @@ namespace Marqdouj.DotNet.General.CsDoc
         /// <typeparam name="T">Must be <see langword="class"/> or <see langword="enum"/></typeparam>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public ICDocument CreateDocument<T>(bool allMembers = true)
+        public ICSDocument CreateDocument<T>(bool allMembers = true)
         {
             ValidateType<T>();
 

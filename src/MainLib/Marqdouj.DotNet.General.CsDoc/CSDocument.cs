@@ -10,7 +10,7 @@ namespace Marqdouj.DotNet.General.CsDoc
     ///  Items are added to the collection if they have an associated <see cref="DisplayAttribute"/> or <see cref="CSDocumentXml"/>
     /// </summary>
     /// <remarks>Supports Class/Enum Type, Constructor, Method, and Property.</remarks>
-    public interface ICDocument
+    public interface ICSDocument
     {
         /// <summary>
         /// The <see cref="System.Type"/> for the class.
@@ -39,9 +39,9 @@ namespace Marqdouj.DotNet.General.CsDoc
     }
 
     /// <summary>
-    /// <see cref="ICDocument"/>
+    /// <see cref="ICSDocument"/>
     /// </summary>
-    internal class CSDocument : ICDocument
+    internal class CSDocument : ICSDocument
     {
         private readonly List<CSDocumentItem> items = [];
 
@@ -183,7 +183,7 @@ namespace Marqdouj.DotNet.General.CsDoc
     }
 
     /// <summary>
-    /// <see cref="ICDocument"/>
+    /// <see cref="ICSDocument"/>
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal sealed class CSDocument<T> : CSDocument

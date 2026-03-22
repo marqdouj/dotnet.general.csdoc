@@ -39,8 +39,8 @@
 
 @code {
     private List<Option<string>> items = [];
-    private ICDocument? document;
-    private List<ICDocument> documents = [];
+    private ICSDocument? document;
+    private List<ICSDocument> documents = [];
     private bool includeAll;
 
     protected override void OnInitialized()
@@ -55,7 +55,7 @@
             var cdReader = new CSDocumentReader("Sandbox.XmlLib");
             cdReader.LoadXml(logger: Logger);
 
-            documents = new List<ICDocument>
+            documents = new List<ICSDocument>
             {
                 cdReader.CreateDocument<MyClass>(includeAll),
                 cdReader.CreateDocument<MyClass<MyClass>>(includeAll),
