@@ -6,7 +6,7 @@ namespace Marqdouj.DotNet.General.CsDoc
     /// <summary>
     /// 
     /// </summary>
-    public static class Extensions
+    public static class CsDocExtensions
     {
         extension(MemberInfo member)
         {

@@ -23,9 +23,9 @@ namespace Marqdouj.DotNet.General.CsDoc
         public string Name { get; }
 
         /// <summary>
-        /// <see cref="DisplayAttribute.Name"/> (if any).
+        /// Gets the <see cref="DisplayAttribute.Name"/> if it has a value, otherwise the <see cref="Name"/>.
         /// </summary>
-        public string? DisplayName => DisplayAttribute?.Name;
+        public string? DisplayName => string.IsNullOrEmpty(DisplayAttribute?.Name) ? Name : DisplayAttribute?.Name;
 
         /// <summary>
         /// <see cref="DisplayAttribute"/>

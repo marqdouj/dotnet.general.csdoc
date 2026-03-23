@@ -51,7 +51,7 @@ namespace Tests
             var doc = cdReader.CreateDocument<MyClass>(false);
 
             Assert.IsNotNull(doc);
-            Assert.HasCount(1, doc.Items);
+            Assert.HasCount(2, doc.Items);
             Assert.AreEqual(summary, doc.Items.First().Comment?.Summary);
             Assert.IsNotNull(doc.Items.First().DisplayAttribute);
             Assert.AreEqual(displayName, doc.Items.First().DisplayAttribute?.Name);

@@ -59,7 +59,11 @@
             {
                 cdReader.CreateDocument<MyClass>(includeAll),
                 cdReader.CreateDocument<MyClass<MyClass>>(includeAll),
-                cdReader.CreateDocument<MyEnum>(includeAll)
+                cdReader.CreateDocument<MyEnum>(includeAll),
+                cdReader.CreateDocument<MyModelClassBase>(includeAll),
+                cdReader.CreateDocument<MyModelClass>(includeAll),
+                cdReader.CreateDocument<MyModelClass<MyClass>>(includeAll),
+                cdReader.CreateDocument<MyModelEnum>(includeAll)
             };
 
             var options = new List<Option<string>>();

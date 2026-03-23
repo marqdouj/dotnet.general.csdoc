@@ -30,7 +30,13 @@ namespace Sandbox.XmlLib
     [Display(Name = "MyClass Name")]
     public class MyClass
     {
-
+        /// <summary>
+        /// MyClass constructor.
+        /// </summary>
+        public MyClass()
+        {
+            
+        }
     }
 
     /// <summary>

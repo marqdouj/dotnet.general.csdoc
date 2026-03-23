@@ -5,9 +5,28 @@ using System.Xml.Linq;
 namespace Marqdouj.DotNet.General.CsDoc
 {
     /// <summary>
+    /// <see cref="CSDocumentReader"/>
+    /// </summary>
+    public interface ICSDocumentReader
+    {
+        /// <summary>
+        /// <see cref="CSDocumentReader.AssemblyName"/>
+        /// </summary>
+        string? AssemblyName { get; }
+
+        /// <summary>
+        /// <see cref="CSDocumentReader.CreateDocument{T}(bool)"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="allMembers"></param>
+        /// <returns></returns>
+        ICSDocument CreateDocument<T>(bool allMembers = true);
+    }
+
+    /// <summary>
     /// Creates instances of <see cref="CSDocument{T}"/>.
     /// </summary>
-    public sealed class CSDocumentReader
+    public class CSDocumentReader : ICSDocumentReader
     {
         private XDocument? xmlDoc;
 
@@ -72,7 +91,7 @@ namespace Marqdouj.DotNet.General.CsDoc
         }
 
         /// <summary>
-        /// Assembly name associated with the Xml cocumentation file.
+        /// Assembly name associated with the Xml documentation file.
         /// </summary>
         public string? AssemblyName { get; internal set; }
 
@@ -115,7 +134,7 @@ namespace Marqdouj.DotNet.General.CsDoc
             return doc;
         }
 
-        private static void ValidateType<T>() 
+        private static void ValidateType<T>()
         {
             // Runtime enforcement: ensure T is either class or enum
             if (!(typeof(T).IsClass || typeof(T).IsEnum))

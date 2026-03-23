@@ -80,8 +80,7 @@ namespace Marqdouj.DotNet.General.CsDoc
         private void ProcessItems(XDocument? xmlDoc, bool allMembers)
         {
             //Process the class
-            var assemblyName = Type.Assembly.GetName().Name;
-            var name = $"T:{assemblyName}.{Type.Name}";
+            var name = $"T:{Type.Namespace}.{Type.Name}";
             var node = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == name);
             var attribute = Type.GetDisplayAttribute();
             CSDocumentXml? comment = null;
@@ -102,7 +101,7 @@ namespace Marqdouj.DotNet.General.CsDoc
                     attribute = value?.GetDisplayAttribute();
                     comment = null;
 
-                    var propName = $"{memberType}:{assemblyName}.{Type.Name}.{memberName}";
+                    var propName = $"{memberType}:{Type.FullName}.{memberName}";
                     var propNode = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == propName);
 
                     if (propNode != null)
@@ -115,13 +114,17 @@ namespace Marqdouj.DotNet.General.CsDoc
             else
             {
                 //Process the members.
-                foreach (var member in Type.GetMembers(BindingFlags.Public | BindingFlags.Instance))
+                var members = Type.GetMembers();
+
+                foreach (var member in members)
                 {
                     if (member is MethodInfo m)
                     {
-                        var isAccessor = m.DeclaringType?.GetProperties().Any(p => p.GetMethod == m || p.SetMethod == m) == true;
-                        if (isAccessor) continue;
+                        //Ignore methods such as 'get_' or 'set_' (accessors) etc.
+                        if (m.IsSpecialName)
+                            continue;
 
+                        //Ignore built-in methods such as 'GetType()', 'GetHashCode()' etc. unless they are overrides.
                         var isCustom = m.DeclaringType == Type;
                         if (!isCustom)
                         {
@@ -132,14 +135,14 @@ namespace Marqdouj.DotNet.General.CsDoc
 
                     string? memberType = null;
                     var memberName = member.Name;
-
-                    Console.WriteLine($"MemberType:{member.MemberType}, Name:{member.Name}");
+                    var isConstructor = false;
 
                     switch (member.MemberType)
                     {
                         case MemberTypes.Constructor:
                             memberType = "M";
                             memberName = "#ctor";
+                            isConstructor = true;
                             break;
                         case MemberTypes.Event:
                             break;
@@ -168,13 +171,13 @@ namespace Marqdouj.DotNet.General.CsDoc
                         attribute = member.GetDisplayAttribute();
                         comment = null;
 
-                        var propName = $"{memberType}:{assemblyName}.{member.DeclaringType?.Name}.{memberName}";
-                        var propNode = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == propName);
+                        var mName = $"{memberType}:{member.DeclaringType?.Namespace}.{member.DeclaringType?.Name}.{memberName}";
+                        var mNode = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == mName);
 
-                        if (propNode != null)
-                            comment = new CSDocumentXml(propNode, propName, member.Name);
+                        if (mNode != null)
+                            comment = new CSDocumentXml(mNode, mName, member.Name);
 
-                        if (allMembers || attribute != null || comment != null)
+                        if ((allMembers && !isConstructor) || attribute != null || comment != null)
                             items.Add(new CSDocumentItem(member.Name, member.MemberType, attribute, comment));
                     }
                 }

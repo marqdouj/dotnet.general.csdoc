@@ -9,10 +9,12 @@ Documentation is dervied from `DisplayAttribute` and the assembly xml documentat
   - `CSDocumentReader`. Creates instances of `CSDocument`.
   - `CSDocument`. Manages a collection of `CSDocumentItem` for a class or enum.
   - `CSDocumentItem`. Container for `DisplayAttribute` and `CSDocumentXml`'s for a class/enum type or one of it's supported members.
-  - `CSDocumentXml`. Values extracted from the xml documentation file for a class/enum type or one of it's supported members.
+  - `CSDocumentXml`. Values extracted from the xml documentation file for a class/enum and of it's supported members.
+  - Currently supported `MemberTypes` are `Constructor`, `Method`, and `Property`, 
 
 - `Extensions`
-  - `GetDisplayAttribute()`. Get the `DisplayAttribute` for supported `type`s.
+  - `GetDisplayAttribute()/GetDisplayName()`. Get the `DisplayAttribute/Name` for supported objects.
+	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
 - `v10.0.0`
