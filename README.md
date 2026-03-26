@@ -17,5 +17,8 @@ Documentation is dervied from `DisplayAttribute` and the assembly xml documentat
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.0.1`
+  - Update project link in package.
+
 - `v10.0.0`
   - Initial release.
