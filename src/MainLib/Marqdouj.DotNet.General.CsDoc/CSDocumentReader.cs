@@ -116,7 +116,7 @@ namespace Marqdouj.DotNet.General.CsDoc
         /// <summary>
         /// <see cref="CSDocumentReader.CreateDocument(Type, bool)"/>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type to create the document for. Must be a class or enum. For interfaces use the generic overload.</typeparam>
         /// <param name="allMembers"></param>
         /// <returns></returns>
         public ICSDocument CreateDocument<T>(bool allMembers = true)
@@ -125,7 +125,7 @@ namespace Marqdouj.DotNet.General.CsDoc
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="ICSDocument"/> based on <typeparamref name="T"/>
+        /// Creates an instance of <see cref="ICSDocument"/>.
         /// </summary>
         /// <param name="type">The type to create the document for. Must be a class, enum, or interface.</param>
         /// <param name="allMembers">
