@@ -1,5 +1,6 @@
 ﻿using Marqdouj.DotNet.General.CsDoc;
 using Sandbox.XmlLib;
+using Sandbox.XmlLib.Models;
 
 namespace Tests
 {
@@ -111,6 +112,18 @@ namespace Tests
         public void CDocument_Add_InvalidAssembly()
         {
             Assert.Throws<Exception>(() => cdReader.CreateDocument<CSDocumentReader>());
+        }
+
+        [TestMethod]
+        public void CDocument_Add_Interface()
+        {
+            var doc = cdReader.CreateDocument(typeof(IMyModelClass));
+            var docItem = doc.GetItem(nameof(IMyModelClass.Alias));
+
+            Assert.IsNotNull(doc);
+            Assert.HasCount(7, doc.Items);
+            Assert.IsNotNull(docItem);
+            Assert.AreEqual("The Alias value.", docItem.Comment?.Summary);
         }
     }
 }

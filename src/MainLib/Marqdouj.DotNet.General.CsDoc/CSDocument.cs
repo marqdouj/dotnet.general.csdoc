@@ -116,70 +116,90 @@ namespace Marqdouj.DotNet.General.CsDoc
                 //Process the members.
                 var members = Type.GetMembers();
 
-                foreach (var member in members)
+                ProcessMembers(xmlDoc, allMembers, ref attribute, ref comment, members);
+
+                if (Type.IsInterface)
                 {
-                    if (member is MethodInfo m)
+                    var derivedInterfaces = Type.Assembly
+                        .GetTypes()
+                        .Where(t => t.IsInterface && t != Type && Type.IsAssignableTo(t)) 
+                        .ToList();
+
+                    foreach (var derivedInterface in derivedInterfaces)
                     {
-                        //Ignore methods such as 'get_' or 'set_' (accessors) etc.
-                        if (m.IsSpecialName)
-                            continue;
+                        members = derivedInterface.GetMembers();
 
-                        //Ignore built-in methods such as 'GetType()', 'GetHashCode()' etc. unless they are overrides.
-                        var isCustom = m.DeclaringType == Type;
-                        if (!isCustom)
-                        {
-                            bool isOverride = m.GetBaseDefinition().DeclaringType != m.DeclaringType;
-                            if (!isOverride) continue;
-                        }
+                        ProcessMembers(xmlDoc, allMembers, ref attribute, ref comment, members);
                     }
+                }
+            }
+        }
 
-                    string? memberType = null;
-                    var memberName = member.Name;
-                    var isConstructor = false;
+        private void ProcessMembers(XDocument? xmlDoc, bool allMembers, ref DisplayAttribute? attribute, ref CSDocumentXml? comment, MemberInfo[] members)
+        {
+            foreach (var member in members)
+            {
+                if (member is MethodInfo m)
+                {
+                    //Ignore methods such as 'get_' or 'set_' (accessors) etc.
+                    if (m.IsSpecialName)
+                        continue;
 
-                    switch (member.MemberType)
+                    //Ignore built-in methods such as 'GetType()', 'GetHashCode()' etc. unless they are overrides.
+                    var isCustom = m.DeclaringType == Type;
+                    if (!isCustom)
                     {
-                        case MemberTypes.Constructor:
-                            memberType = "M";
-                            memberName = "#ctor";
-                            isConstructor = true;
-                            break;
-                        case MemberTypes.Event:
-                            break;
-                        case MemberTypes.Field:
-                            break;
-                        case MemberTypes.Method:
-                            memberType = "M";
-                            break;
-                        case MemberTypes.Property:
-                            memberType = "P";
-                            break;
-                        case MemberTypes.TypeInfo:
-                            break;
-                        case MemberTypes.Custom:
-                            break;
-                        case MemberTypes.NestedType:
-                            break;
-                        case MemberTypes.All:
-                            break;
-                        default:
-                            break;
+                        bool isOverride = m.GetBaseDefinition().DeclaringType != m.DeclaringType;
+                        if (!isOverride) continue;
                     }
+                }
 
-                    if (memberType != null)
-                    {
-                        attribute = member.GetDisplayAttribute();
-                        comment = null;
+                string? memberType = null;
+                var memberName = member.Name;
+                var isConstructor = false;
 
-                        var mName = $"{memberType}:{member.DeclaringType?.Namespace}.{member.DeclaringType?.Name}.{memberName}";
-                        var mNode = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == mName);
+                switch (member.MemberType)
+                {
+                    case MemberTypes.Constructor:
+                        memberType = "M";
+                        memberName = "#ctor";
+                        isConstructor = true;
+                        break;
+                    case MemberTypes.Event:
+                        break;
+                    case MemberTypes.Field:
+                        break;
+                    case MemberTypes.Method:
+                        memberType = "M";
+                        break;
+                    case MemberTypes.Property:
+                        memberType = "P";
+                        break;
+                    case MemberTypes.TypeInfo:
+                        break;
+                    case MemberTypes.Custom:
+                        break;
+                    case MemberTypes.NestedType:
+                        break;
+                    case MemberTypes.All:
+                        break;
+                    default:
+                        break;
+                }
 
-                        if (mNode != null)
-                            comment = new CSDocumentXml(mNode, mName, member.Name);
+                if (memberType != null)
+                {
+                    attribute = member.GetDisplayAttribute();
+                    comment = null;
 
-                        if ((allMembers && !isConstructor) || attribute != null || comment != null)
-                            items.Add(new CSDocumentItem(member.Name, member.MemberType, attribute, comment));
-                    }
+                    var mName = $"{memberType}:{member.DeclaringType?.Namespace}.{member.DeclaringType?.Name}.{memberName}";
+                    var mNode = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == mName);
+
+                    if (mNode != null)
+                        comment = new CSDocumentXml(mNode, mName, member.Name);
+
+                    if ((allMembers && !isConstructor) || attribute != null || comment != null)
+                        items.Add(new CSDocumentItem(member.Name, member.MemberType, attribute, comment));
                 }
             }
         }

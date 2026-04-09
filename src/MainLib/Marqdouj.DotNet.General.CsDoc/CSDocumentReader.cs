@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
 namespace Marqdouj.DotNet.General.CsDoc
@@ -113,19 +114,30 @@ namespace Marqdouj.DotNet.General.CsDoc
         public Exception? LoadXmlException { get; internal set; }
 
         /// <summary>
+        /// <see cref="CSDocumentReader.CreateDocument(Type, bool)"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="allMembers"></param>
+        /// <returns></returns>
+        public ICSDocument CreateDocument<T>(bool allMembers = true)
+        {
+            return CreateDocument(typeof(T), allMembers);
+        }
+
+        /// <summary>
         /// Creates an instance of <see cref="ICSDocument"/> based on <typeparamref name="T"/>
         /// </summary>
+        /// <param name="type">The type to create the document for. Must be a class, enum, or interface.</param>
         /// <param name="allMembers">
         /// <see langword="true"/> to create items for all custom or override members; 
         /// otherwise just those that have a <see cref="DisplayAttribute"/> or xml commment. Default is <see langword="true"/>. </param>
-        /// <typeparam name="T">Must be <see langword="class"/> or <see langword="enum"/></typeparam>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public ICSDocument CreateDocument<T>(bool allMembers = true)
+        public ICSDocument CreateDocument(Type type, bool allMembers = true)
         {
-            ValidateType<T>();
+            ValidateType(type);
 
-            var doc = new CSDocument<T>(xmlDoc, allMembers);
+            var doc = new CSDocument(type, xmlDoc, allMembers);
             var cdocAssemblyName = doc.Type.Assembly.GetName().Name;
 
             if (AssemblyName != cdocAssemblyName)
@@ -134,13 +146,13 @@ namespace Marqdouj.DotNet.General.CsDoc
             return doc;
         }
 
-        private static void ValidateType<T>()
+        private static void ValidateType(Type type)
         {
-            // Runtime enforcement: ensure T is either class or enum
-            if (!(typeof(T).IsClass || typeof(T).IsEnum))
+            // Runtime enforcement: ensure T is either class, enum, or interface.
+            if (!(type.IsClass || type.IsEnum || type.IsInterface))
             {
                 throw new InvalidOperationException(
-                    $"Type parameter '{typeof(T).Name}' must be a class or an enum."
+                    $"Type parameter '{type.Name}' must be a class, enum, or interface."
                 );
             }
         }
