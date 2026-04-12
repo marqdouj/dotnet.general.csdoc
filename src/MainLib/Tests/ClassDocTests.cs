@@ -125,5 +125,45 @@ namespace Tests
             Assert.IsNotNull(docItem);
             Assert.AreEqual("The Alias value.", docItem.Comment?.Summary);
         }
+
+        [TestMethod]
+        public void CDocument_InheritCRef_MyItem()
+        {
+            var doc = cdReader.CreateDocument<MyModelClass>();
+            var docItem = doc.GetItem(nameof(MyModelClass.MyItem));
+
+            Assert.IsNotNull(docItem);
+            Assert.AreEqual("MyItem that does stuff. This is MyModelClassItem.", docItem.Comment?.Summary);
+        }
+
+        [TestMethod]
+        public void CDocument_InheritCRef_MyItem2()
+        {
+            var doc = cdReader.CreateDocument<MyModelClass>();
+            var docItem = doc.GetItem(nameof(MyModelClass.MyItem2));
+
+            Assert.IsNotNull(docItem);
+            Assert.AreEqual("MyItem that does other stuff. This is MyModelClassItem.", docItem.Comment?.Summary);
+        }
+
+        [TestMethod]
+        public void CDocument_InheritCRef_MyItem3()
+        {
+            var doc = cdReader.CreateDocument<MyModelClass>();
+            var docItem = doc.GetItem(nameof(MyModelClass.MyItem3));
+
+            Assert.IsNotNull(docItem);
+            Assert.AreEqual("This is MyModelClassItem.", docItem.Comment?.Summary);
+        }
+
+        [TestMethod]
+        public void CDocument_InheritCRef_MyItem4()
+        {
+            var doc = cdReader.CreateDocument<MyModelClass>();
+            var docItem = doc.GetItem(nameof(MyModelClass.MyItem4));
+
+            Assert.IsNotNull(docItem);
+            Assert.AreEqual("MyItem4 does stuff. This is MyModelClassItem.", docItem.Comment?.Summary);
+        }
     }
 }

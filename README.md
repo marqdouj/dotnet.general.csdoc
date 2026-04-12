@@ -17,6 +17,9 @@ Documentation is dervied from `DisplayAttribute` and the assembly xml documentat
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.1.1`
+  - Added support for `cref=` within the same xml documentation file.
+
 - `v10.1.0`
   - Added support for Interface types. Includes derived types and their members.
 

@@ -80,7 +80,7 @@ namespace Sandbox.XmlLib.Models
     /// <summary>
     /// Interface for MyModelClass.
     /// </summary>
-    public interface IMyModelClass: IMyModelClassBase
+    public interface IMyModelClass : IMyModelClassBase
     {
         /// <summary>
         /// Static Counter.
@@ -118,6 +118,26 @@ namespace Sandbox.XmlLib.Models
         /// 
         /// </summary>
         public static double Percentage { get; set; }
+
+        /// <summary>
+        /// MyItem that does stuff. <inheritdoc cref="MyModelClassItem"/>
+        /// </summary>
+        public MyModelClassItem? MyItem { get; set; }
+
+        /// <summary>
+        /// MyItem that does other stuff. <see cref="MyModelClassItem"/>
+        /// </summary>
+        public MyModelClassItem? MyItem2 { get; set; }
+
+        /// <summary>
+        /// <see cref="MyModelClassItem"/>
+        /// </summary>
+        public MyModelClassItem? MyItem3 { get; set; }
+
+        /// <summary>
+        /// <see cref="MyModelClassItem"/>. MyItem4 does stuff.
+        /// </summary>
+        public MyModelClassItem? MyItem4 { get; set; }
     }
 
     /// <summary>
@@ -150,5 +170,16 @@ namespace Sandbox.XmlLib.Models
         {
 
         }
+    }
+
+    /// <summary>
+    /// This is MyModelClassItem.
+    /// </summary>
+    public class MyModelClassItem
+    {
+        /// <summary>
+        /// The enum value.
+        /// </summary>
+        public MyModelEnum EnumValue { get; set; }
     }
 }
