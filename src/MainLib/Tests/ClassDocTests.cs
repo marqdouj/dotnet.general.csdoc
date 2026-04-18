@@ -165,5 +165,37 @@ namespace Tests
             Assert.IsNotNull(docItem);
             Assert.AreEqual("MyItem4 does stuff. This is MyModelClassItem.", docItem.Comment?.Summary);
         }
+
+        [TestMethod]
+        public void CDocument_NameAlias()
+        {
+            var doc = cdReader.CreateDocument<MyModelEnum>();
+            var docItem = doc.GetItem(nameof(MyModelEnum));
+
+            Assert.IsNotNull(docItem);
+            Assert.AreEqual(nameof(MyModelEnum), docItem.Name);
+            Assert.AreEqual(nameof(MyModelEnum), docItem.DisplayName);
+
+            var aliasName = "My Alias Name";
+            docItem.NameAlias = aliasName;
+            Assert.AreEqual(aliasName, docItem.NameAlias);
+            Assert.AreEqual(aliasName, docItem.DisplayName);
+        }
+
+        [TestMethod]
+        public void CDocument_NameAlias_WithDisplay()
+        {
+            var doc = cdReader.CreateDocument<MyModelEnum>();
+            var docItem = doc.GetItem(nameof(MyModelEnum.FirstValue));
+            var firstValue = "First Value";
+
+            Assert.IsNotNull(docItem);
+            Assert.AreEqual(firstValue, docItem.DisplayName);
+
+            var aliasName = "My Alias Name";
+            docItem.NameAlias = aliasName;
+            Assert.AreEqual(aliasName, docItem.NameAlias);
+            Assert.AreEqual(firstValue, docItem.DisplayName);
+        }
     }
 }

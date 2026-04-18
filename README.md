@@ -17,6 +17,11 @@ Documentation is dervied from `DisplayAttribute` and the assembly xml documentat
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.2.0`
+  - `CSDocumentItem`.
+	- `NameAlias`. Added property to override the `Name` when resolving `DisplayName`.
+	This is useful for providing a name for Enum types (which don't allow a `Display` attribute), i.e. Name = "MyEnumTypeName", NameAlias = "My Name".
+
 - `v10.1.1`
   - Added support for `cref=` within the same xml documentation file.
 

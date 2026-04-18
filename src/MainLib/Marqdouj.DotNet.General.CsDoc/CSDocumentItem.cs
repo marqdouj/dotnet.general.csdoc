@@ -23,9 +23,16 @@ namespace Marqdouj.DotNet.General.CsDoc
         public string Name { get; }
 
         /// <summary>
+        /// Alias for the Name to use when resolving the <see cref="DisplayName"/>.
+        /// </summary>
+        public string? NameAlias { get; set; }
+
+        /// <summary>
         /// Gets the <see cref="DisplayAttribute.Name"/> if it has a value, otherwise the <see cref="Name"/>.
         /// </summary>
-        public string? DisplayName => string.IsNullOrEmpty(DisplayAttribute?.Name) ? Name : DisplayAttribute?.Name;
+        public string? DisplayName => string.IsNullOrEmpty(DisplayAttribute?.Name) ?
+            string.IsNullOrEmpty(NameAlias) ? Name : NameAlias : 
+            DisplayAttribute?.Name;
 
         /// <summary>
         /// <see cref="DisplayAttribute"/>
