@@ -17,18 +17,12 @@ Documentation is dervied from `DisplayAttribute` and the assembly xml documentat
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
-- `v10.4.2`
- - `ICSDocument`.
-	- Added logic to handle generic method parameters, i.e. MyMethod<T, P>(T v1, bool flag, P p1), etc.
-
-- `v10.4.1`
- - `ICSDocument`.
-	- `GetItem`. Will now return the method that has parameters if it is the only method with the name. Parameters dot not need to be supplied.
-
-- `v10.4.0`
+- `v10.4.3`
   - `General`.
 	- `Parameters`. Most items now have a `Parameters` property; which represents the XmlDocument parameters signature.
- - `ICSDocument`.
+  - `ICSDocument`.
+	- Added logic to handle generic method parameters, i.e. MyMethod<T, P>(T v1, bool flag, P p1), etc.
+	- `GetItem`. Will now return the method that has parameters if it is the only method with the name. Parameters dot not need to be supplied.
 	- `GetItems`. New method. Returns all items with the same name.
 	- `GetItem`. Now supports search by name and parameters signature.
 	- `Example`:
@@ -42,11 +36,8 @@ Documentation is dervied from `DisplayAttribute` and the assembly xml documentat
 	```csharp
 	 var docItem1 = doc.GetItem(nameof(MyStaticClass.GetMyOtherString), "(System.Double,System.Double)");
       var docItem2 = doc.GetItem(nameof(MyStaticClass.GetMyOtherString), "(System.Double,System.Double,System.Double)");
-	```
-
-- `v10.3.0`
   - `ICSDocumentReader`.
-	- `ICSDocument CreateDocument(Type type, bool allMembers = true)`. Added method to handle types	that can't be used with `<T>` i.e. static classes.
+	- `ICSDocument CreateDocument(Type type, bool allMembers = true)`. Added method to handle types	that can't be used with `<T>` i.e. can be used with static classes.
 
 - `v10.2.0`
   - `CSDocumentItem`.

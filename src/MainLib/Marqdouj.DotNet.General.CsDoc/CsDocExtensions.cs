@@ -38,6 +38,10 @@ namespace Marqdouj.DotNet.General.CsDoc
                         {
                             sb.Append(param.ParameterType.FullName);
                         }
+                        else if (param.ParameterType.IsClass)
+                        {
+                            sb.Append(param.ParameterType.FullName);
+                        }
                         else if (param.IsIEnumerable())
                         {
                             var name = type.FullName ?? type.Name;
