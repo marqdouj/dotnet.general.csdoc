@@ -26,6 +26,63 @@ namespace Sandbox.XmlLib.Models
     }
 
     /// <summary>
+    /// My Model Inteface with methods.
+    /// </summary>
+    public interface IMyModelWithMethods 
+    {
+        /// <summary>
+        /// My Test with IEnumerable{bool}.
+        /// </summary>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        [Display(Name = "My Flags")]
+        string? MyTest(IEnumerable<bool> flags) => "";
+
+        /// <summary>
+        /// My Test with MyModelClassItem.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        [Display(Name = "My Flags")]
+        string? MyTest(MyModelClassItem item) => "";
+
+        /// <summary>
+        /// My Test with list.
+        /// </summary>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        [Display(Name = "My Flags")]
+        string? MyTest(List<bool> flags) => "";
+
+        /// <summary>
+        /// My Test{T}.
+        /// </summary>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        [Display(Name = "My Flags{T}")]
+        string? MyTest<T>(T flags) => "";
+
+        /// <summary>
+        /// My Test{T,P}.
+        /// </summary>
+        /// <param name="flags"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        [Display(Name = "My Flags{T}")]
+        string? MyTest<T, P>(T flags, P other) => "";
+
+        /// <summary>
+        /// My Test{T,P} with bool.
+        /// </summary>
+        /// <param name="flags"></param>
+        /// <param name="flag"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        [Display(Name = "My Flags{T}")]
+        string? MyTest<T, P>(T flags, bool flag, P other) => "";
+    }
+
+    /// <summary>
     /// Interface for IMyModelClassBase.
     /// </summary>
     public interface IMyModelClassBase
@@ -48,6 +105,25 @@ namespace Sandbox.XmlLib.Models
         /// The Test value.
         /// </summary>
         string? Test { get; set; }
+
+        /// <summary>
+        /// Gets my string.
+        /// </summary>
+        /// <returns></returns>
+        string? GetMyString() => "";
+
+        /// <summary>
+        /// Gets my string.
+        /// </summary>
+        /// <returns></returns>
+        string? GetMyString(bool flag) => "";
+
+        /// <summary>
+        /// Gets my single value.
+        /// </summary>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        string? GetMySingleMethodValue(IEnumerable<bool> flags) => "";
     }
 
     /// <summary>

@@ -241,5 +241,24 @@ namespace Tests
             Assert.IsNotNull(docItem);
             Assert.AreEqual("Gets my other string.", docItem.Comment?.Summary);
         }
+
+        [TestMethod]
+        public void CDocument_Interface_Methods()
+        {
+            var doc = cdReader.CreateDocument<IMyModelWithMethods>();
+            var items = doc.GetItems(nameof(IMyModelWithMethods.MyTest));
+
+            Assert.HasCount(6, items);
+
+            foreach (var item in items)
+            {
+                Assert.IsNotNull(item.Comment);
+                Console.WriteLine($"{item.Name} {item.Parameters}");
+                Console.WriteLine($"{item.Name} {item.Comment.Summary}");
+            }
+
+            var docItem = doc.GetItem(nameof(IMyModelWithMethods.MyTest));
+            Assert.IsNull(docItem);
+        }
     }
 }

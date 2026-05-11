@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text;
 
@@ -15,28 +16,97 @@ namespace Marqdouj.DotNet.General.CsDoc
             /// Builds XmlDocument parameter signature for a method i.e. (System.Double,System.String).
             /// </summary>
             /// <returns></returns>
-            public string BuildParameters()
+            public string BuildParameters(out string nameSuffix)
             {
+                nameSuffix = "";
                 var parameters = info.GetParameters().ToList();
                 var mParameters = "";
 
                 if (parameters.Count > 0)
                 {
                     var sb = new StringBuilder();
+                    var genIdx = 0;
 
                     foreach (var param in parameters)
                     {
                         if (sb.Length > 0)
                             sb.Append(',');
-                        sb.Append(param.ParameterType.FullName);
+
+                        var type = param.ParameterType;
+
+                        if (type.IsValueType || type == typeof(string))
+                        {
+                            sb.Append(param.ParameterType.FullName);
+                        }
+                        else if (param.IsIEnumerable())
+                        {
+                            var name = type.FullName ?? type.Name;
+
+                            // If you want to remove the generic arity suffix (`1, `2, etc.)
+                            string cleanName = type.IsGenericType
+                                ? name[..name.IndexOf('`')]
+                                : name;
+
+                            var arg = type.GenericTypeArguments?.FirstOrDefault();
+                            var argValue = $"{{{arg?.FullName}}}" ?? "";
+                            sb.Append($"{cleanName}{argValue}");
+                        }
+                        else
+                        {
+                            if (type.IsGenericParameter)
+                            {
+                                sb.Append($"``{genIdx}");
+                                genIdx++;
+                            }
+                            else
+                            {
+                                sb.Append(type.FullName);
+                            }
+                        }
                     }
 
-                    sb.Insert(0, '(');
-                    sb.Append(')');
+                    if (genIdx > 0)
+                        nameSuffix = $"``{genIdx}";
+
+                    if (sb.Length > 0)
+                    {
+                        sb.Insert(0, '(');
+                        sb.Append(')');
+                    }
+
                     mParameters = sb.ToString();
+                    //Console.WriteLine(mParameters);
                 }
 
                 return mParameters;
+            }
+        }
+
+        extension(ParameterInfo parameter)
+        {
+            /// <summary>
+            /// Checks if a ParameterInfo represents an IEnumerable (generic or non-generic).
+            /// </summary>
+            bool IsIEnumerable()
+            {
+                if (parameter == null) return false;
+
+                Type type = parameter.ParameterType;
+
+                // Handle arrays (they are IEnumerable)
+                if (type.IsArray) return true;
+
+                // Check non-generic IEnumerable
+                if (typeof(IEnumerable).IsAssignableFrom(type)) return true;
+
+                // Check generic IEnumerable<T>
+                if (type.GetInterfaces().Any(i =>
+                    i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+                {
+                    return true;
+                }
+
+                return false;
             }
         }
 

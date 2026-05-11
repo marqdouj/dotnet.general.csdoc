@@ -182,8 +182,8 @@ namespace Marqdouj.DotNet.General.CsDoc
         {
             foreach (var member in members)
             {
+                var memberName = member.Name;
                 var mParameters = "";
-                //List<ParameterInfo> parameters = [];
 
                 if (member is MethodInfo m)
                 {
@@ -199,11 +199,11 @@ namespace Marqdouj.DotNet.General.CsDoc
                         if (!isOverride) continue;
                     }
 
-                    mParameters = m.BuildParameters();
+                    mParameters = m.BuildParameters(out string? memberNameSuffix);
+                    memberName = $"{memberName}{memberNameSuffix}";
                 }
 
                 string? memberType = null;
-                var memberName = member.Name;
                 var isConstructor = false;
 
                 switch (member.MemberType)
@@ -239,23 +239,6 @@ namespace Marqdouj.DotNet.General.CsDoc
                 {
                     attribute = member.GetDisplayAttribute();
                     comment = null;
-
-                    //var mParameters = "";
-                    //if (parameters.Count > 0)
-                    //{
-                    //    var sb = new StringBuilder();
-                        
-                    //    foreach (var param in parameters)
-                    //    {
-                    //        if (sb.Length > 0)
-                    //            sb.Append(',');
-                    //        sb.Append(param.ParameterType.FullName);
-                    //    }
-
-                    //    sb.Insert(0, '(');
-                    //    sb.Append(')');
-                    //    mParameters = sb.ToString();
-                    //}
 
                     var mName = $"{memberType}:{member.DeclaringType?.Namespace}.{member.DeclaringType?.Name}.{memberName}{mParameters}";
                     var mNode = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == mName);
