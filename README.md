@@ -17,6 +17,10 @@ Documentation is dervied from `DisplayAttribute` and the assembly xml documentat
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.4.1`
+ - `ICSDocument`.
+	- `GetItem`. Will now return the method that has parameters if it is the only method with the name. Parameters dot not need to be supplied.
+
 - `v10.4.0`
   - `General`.
 	- `Parameters`. Most items now have a `Parameters` property; which represents the XmlDocument parameters signature.

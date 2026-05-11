@@ -207,7 +207,7 @@ namespace Tests
             var docItem3 = doc.GetItem(nameof(MyStaticClass.GetMyOtherString), "(System.Double,System.Double,System.Double)");
 
             Assert.IsNotNull(doc);
-            Assert.HasCount(4, doc.Items);
+            Assert.HasCount(5, doc.Items);
             Assert.IsNotNull(docItem);
             Assert.IsNotNull(docItem2);
             Assert.IsNotNull(docItem3);
@@ -231,5 +231,15 @@ namespace Tests
             Assert.AreEqual("Gets my other string with z.", docItem2.Comment?.Summary);
         }
 
+        [TestMethod]
+        public void CDocument_Static_Class_SingleWithParameters()
+        {
+            var doc = cdReader.CreateDocument(typeof(MyStaticClass));
+            var docItem = doc.GetItem(nameof(MyStaticClass.GetMySingleMethodWithParams));
+
+            Assert.IsNotNull(doc);
+            Assert.IsNotNull(docItem);
+            Assert.AreEqual("Gets my other string.", docItem.Comment?.Summary);
+        }
     }
 }

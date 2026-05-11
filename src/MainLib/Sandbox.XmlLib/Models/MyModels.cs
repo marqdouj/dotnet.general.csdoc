@@ -210,5 +210,13 @@ namespace Sandbox.XmlLib.Models
         /// <param name="z"></param>
         /// <returns></returns>
         public static string? GetMyOtherString(double x, double y, double z) => $"[{x},{y},{z}]";
+
+        /// <summary>
+        /// <see cref="GetMyOtherString(double, double)"/>
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public static string? GetMySingleMethodWithParams(double x, double y) => GetMyOtherString(x, y);
     }
 }

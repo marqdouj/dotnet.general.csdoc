@@ -81,9 +81,18 @@ namespace Marqdouj.DotNet.General.CsDoc
         /// <returns></returns>
         public CSDocumentItem? GetItem(string name, string parameters = "")
         {
-            return Items.FirstOrDefault(e => 
+            var item = Items.FirstOrDefault(e => 
                 e.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && 
                 e.Parameters.Equals(parameters, StringComparison.OrdinalIgnoreCase));
+
+            if (item == null)
+            {
+                var items = GetItems(name);
+                if (items.Count == 1)
+                    item = items[0];
+            }
+
+            return item;
         }
 
         /// <summary>
