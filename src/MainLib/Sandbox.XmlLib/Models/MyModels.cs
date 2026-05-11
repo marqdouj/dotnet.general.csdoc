@@ -193,5 +193,22 @@ namespace Sandbox.XmlLib.Models
         /// </summary>
         /// <returns></returns>
         public static string? GetMyString() => "my string.";
+
+        /// <summary>
+        /// Gets my other string.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public static string? GetMyOtherString(double x, double y) => $"[{x},{y}]";
+
+        /// <summary>
+        /// Gets my other string with z.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <returns></returns>
+        public static string? GetMyOtherString(double x, double y, double z) => $"[{x},{y},{z}]";
     }
 }

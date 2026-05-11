@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Xml.Linq;
 
 namespace Marqdouj.DotNet.General.CsDoc
@@ -26,16 +28,25 @@ namespace Marqdouj.DotNet.General.CsDoc
         /// Get the first <see cref="CSDocumentItem"/> with the <paramref name="name"/>
         /// </summary>
         /// <param name="name"><see cref="CSDocumentItem.Name"/></param>
+        /// <param name="parameters"><see cref="CSDocumentXml.Parameters"/></param>
         /// <returns><see cref="CSDocumentItem"/></returns>
-        CSDocumentItem? GetItem(string name);
+        CSDocumentItem? GetItem(string name, string parameters = "");
+
+        /// <summary>
+        /// Get all <see cref="CSDocumentItem"/> with the same <paramref name="name"/>
+        /// </summary>
+        /// <param name="name"><see cref="CSDocumentItem.Name"/></param>
+        /// <returns><see cref="List{CSDocumentItem}"/></returns>
+        List<CSDocumentItem> GetItems(string name);
 
         /// <summary>
         /// Get the first <see cref="CSDocumentItem"/> with the <paramref name="memberType"/> and <paramref name="name"/>
         /// </summary>
         /// <param name="memberType"><see cref="MemberTypes"/></param>
         /// <param name="name"><see cref="CSDocumentItem.Name"/></param>
+        /// <param name="parameters"><see cref="CSDocumentXml.Parameters"/></param>
         /// <returns><see cref="CSDocumentItem"/></returns>
-        CSDocumentItem? GetItem(MemberTypes memberType, string name);
+        CSDocumentItem? GetItem(MemberTypes memberType, string name, string parameters = "");
     }
 
     /// <summary>
@@ -63,19 +74,42 @@ namespace Marqdouj.DotNet.General.CsDoc
         public IReadOnlyCollection<CSDocumentItem> Items { get; }
 
         /// <summary>
-        /// Gets the <see cref="CSDocumentXml"/> associated with the <paramref name="name"/>
+        /// Gets the <see cref="CSDocumentItem"/> associated with the <paramref name="name"/>
+        /// </summary>
+        /// <param name="name"><see cref="CSDocumentItem.Name"/></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public CSDocumentItem? GetItem(string name, string parameters = "")
+        {
+            return Items.FirstOrDefault(e => 
+                e.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && 
+                e.Parameters.Equals(parameters, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Gets all the <see cref="CSDocumentItem"/> items associated with the <paramref name="name"/>
         /// </summary>
         /// <param name="name"><see cref="CSDocumentItem.Name"/></param>
         /// <returns></returns>
-        public CSDocumentItem? GetItem(string name) => Items.FirstOrDefault(e => e.Name?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false);
+        public List<CSDocumentItem> GetItems(string name)
+        {
+            return [.. Items.Where(e => e.Name.Equals(name, StringComparison.OrdinalIgnoreCase))];
+        }
 
         /// <summary>
         /// Gets the <see cref="CSDocumentXml"/> associated with the <paramref name="memberType"/> and <paramref name="name"/>
         /// </summary>
         /// <param name="memberType"><see cref="MemberTypes"/></param>
         /// <param name="name"><see cref="CSDocumentItem.Name"/></param>
+        /// <param name="parameters"></param>
         /// <returns></returns>
-        public CSDocumentItem? GetItem(MemberTypes memberType, string name) => Items.FirstOrDefault(e => e.MemberType == memberType && (e.Name?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false));
+        public CSDocumentItem? GetItem(MemberTypes memberType, string name, string parameters = "")
+        {
+            return Items.FirstOrDefault(e => 
+                e.MemberType == memberType && 
+                e.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                e.Parameters.Equals(parameters, StringComparison.OrdinalIgnoreCase));
+        }
 
         private void ProcessItems(XDocument? xmlDoc, bool allMembers)
         {
@@ -139,6 +173,9 @@ namespace Marqdouj.DotNet.General.CsDoc
         {
             foreach (var member in members)
             {
+                var mParameters = "";
+                //List<ParameterInfo> parameters = [];
+
                 if (member is MethodInfo m)
                 {
                     //Ignore methods such as 'get_' or 'set_' (accessors) etc.
@@ -152,6 +189,8 @@ namespace Marqdouj.DotNet.General.CsDoc
                         bool isOverride = m.GetBaseDefinition().DeclaringType != m.DeclaringType;
                         if (!isOverride) continue;
                     }
+
+                    mParameters = m.BuildParameters();
                 }
 
                 string? memberType = null;
@@ -192,11 +231,28 @@ namespace Marqdouj.DotNet.General.CsDoc
                     attribute = member.GetDisplayAttribute();
                     comment = null;
 
-                    var mName = $"{memberType}:{member.DeclaringType?.Namespace}.{member.DeclaringType?.Name}.{memberName}";
+                    //var mParameters = "";
+                    //if (parameters.Count > 0)
+                    //{
+                    //    var sb = new StringBuilder();
+                        
+                    //    foreach (var param in parameters)
+                    //    {
+                    //        if (sb.Length > 0)
+                    //            sb.Append(',');
+                    //        sb.Append(param.ParameterType.FullName);
+                    //    }
+
+                    //    sb.Insert(0, '(');
+                    //    sb.Append(')');
+                    //    mParameters = sb.ToString();
+                    //}
+
+                    var mName = $"{memberType}:{member.DeclaringType?.Namespace}.{member.DeclaringType?.Name}.{memberName}{mParameters}";
                     var mNode = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == mName);
 
                     if (mNode != null)
-                        comment = new CSDocumentXml(mNode, mName, member.Name);
+                        comment = new CSDocumentXml(mNode, mName, member.Name, mParameters);
 
                     if ((allMembers && !isConstructor) || attribute != null || comment != null)
                         items.Add(new CSDocumentItem(member.Name, member.MemberType, attribute, comment));

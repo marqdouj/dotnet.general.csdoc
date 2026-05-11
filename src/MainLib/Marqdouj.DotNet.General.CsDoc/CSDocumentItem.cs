@@ -15,12 +15,18 @@ namespace Marqdouj.DotNet.General.CsDoc
             MemberType = memberType;
             DisplayAttribute = attribute;
             Comment = comment ?? new();
+            Parameters = comment?.Parameters ?? "";
         }
 
         /// <summary>
         /// The name asscociated with the class or it's member.
         /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// Parameters signature for a method i.e. (System.Double,System.String)
+        /// </summary>
+        public string Parameters { get; }
 
         /// <summary>
         /// Alias for the Name to use when resolving the <see cref="DisplayName"/>.

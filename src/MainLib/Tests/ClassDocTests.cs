@@ -203,11 +203,33 @@ namespace Tests
         {
             var doc = cdReader.CreateDocument(typeof(MyStaticClass));
             var docItem = doc.GetItem(nameof(MyStaticClass.GetMyString));
+            var docItem2 = doc.GetItem(nameof(MyStaticClass.GetMyOtherString), "(System.Double,System.Double)");
+            var docItem3 = doc.GetItem(nameof(MyStaticClass.GetMyOtherString), "(System.Double,System.Double,System.Double)");
 
             Assert.IsNotNull(doc);
-            Assert.HasCount(2, doc.Items);
+            Assert.HasCount(4, doc.Items);
             Assert.IsNotNull(docItem);
+            Assert.IsNotNull(docItem2);
+            Assert.IsNotNull(docItem3);
             Assert.AreEqual("Gets my string.", docItem.Comment?.Summary);
+            Assert.AreEqual("Gets my other string.", docItem2.Comment?.Summary);
+            Assert.AreEqual("Gets my other string with z.", docItem3.Comment?.Summary);
         }
+
+        [TestMethod]
+        public void CDocument_Static_GetItems()
+        {
+            var doc = cdReader.CreateDocument(typeof(MyStaticClass));
+            var items = doc.GetItems(nameof(MyStaticClass.GetMyOtherString));
+            var docItem1 = doc.GetItem(nameof(MyStaticClass.GetMyOtherString), items[0].Parameters);
+            var docItem2 = doc.GetItem(nameof(MyStaticClass.GetMyOtherString), items[1].Parameters);
+
+            Assert.HasCount(2, items);
+            Assert.IsNotNull(docItem1);
+            Assert.IsNotNull(docItem2);
+            Assert.AreEqual("Gets my other string.", docItem1.Comment?.Summary);
+            Assert.AreEqual("Gets my other string with z.", docItem2.Comment?.Summary);
+        }
+
     }
 }

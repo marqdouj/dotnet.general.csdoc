@@ -17,6 +17,25 @@ Documentation is dervied from `DisplayAttribute` and the assembly xml documentat
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.4.0`
+  - `General`.
+	- `Parameters`. Most items now have a `Parameters` property; which represents the XmlDocument parameters signature.
+ - `ICSDocument`.
+	- `GetItems`. New method. Returns all items with the same name.
+	- `GetItem`. Now supports search by name and parameters signature.
+	- `Example`:
+	```csharp
+	var doc = cdReader.CreateDocument(typeof(MyStaticClass));
+     var items = doc.GetItems(nameof(MyStaticClass.GetMyOtherString));
+     var docItem1 = doc.GetItem(nameof(MyStaticClass.GetMyOtherString), items[0].Parameters);
+     var docItem2 = doc.GetItem(nameof(MyStaticClass.GetMyOtherString), items[1].Parameters);
+	```
+	You can also hard-code the parameters:
+	```csharp
+	 var docItem1 = doc.GetItem(nameof(MyStaticClass.GetMyOtherString), "(System.Double,System.Double)");
+      var docItem2 = doc.GetItem(nameof(MyStaticClass.GetMyOtherString), "(System.Double,System.Double,System.Double)");
+	```
+
 - `v10.3.0`
   - `ICSDocumentReader`.
 	- `ICSDocument CreateDocument(Type type, bool allMembers = true)`. Added method to handle types	that can't be used with `<T>` i.e. static classes.

@@ -10,10 +10,11 @@ namespace Marqdouj.DotNet.General.CsDoc
     {
         internal CSDocumentXml() { }
 
-        internal CSDocumentXml(XElement node, string fullname, string? memberName)
+        internal CSDocumentXml(XElement node, string fullname, string? memberName, string mParameters = "")
         {
             Fullname = fullname;
             MemberName = memberName;
+            Parameters = mParameters;
             Summary = node.Element("summary")?.Value.Trim();
 
             foreach (XNode element in node.Element("summary")?.Nodes() ?? [])
@@ -89,6 +90,11 @@ namespace Marqdouj.DotNet.General.CsDoc
         /// 'Member' element name (without Type).
         /// </summary>
         public string? Name => Fullname?[2..];
+
+        /// <summary>
+        /// Parameters signature for a method i.e. (System.Double,System.String)
+        /// </summary>
+        public string Parameters { get; } = "";
 
         /// <summary>
         /// Value for the 'summary' element in the xml document.

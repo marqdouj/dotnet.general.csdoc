@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using System.Text;
 
 namespace Marqdouj.DotNet.General.CsDoc
 {
@@ -8,6 +9,37 @@ namespace Marqdouj.DotNet.General.CsDoc
     /// </summary>
     public static class CsDocExtensions
     {
+        extension(MethodInfo info)
+        {
+            /// <summary>
+            /// Builds XmlDocument parameter signature for a method i.e. (System.Double,System.String).
+            /// </summary>
+            /// <returns></returns>
+            public string BuildParameters()
+            {
+                var parameters = info.GetParameters().ToList();
+                var mParameters = "";
+
+                if (parameters.Count > 0)
+                {
+                    var sb = new StringBuilder();
+
+                    foreach (var param in parameters)
+                    {
+                        if (sb.Length > 0)
+                            sb.Append(',');
+                        sb.Append(param.ParameterType.FullName);
+                    }
+
+                    sb.Insert(0, '(');
+                    sb.Append(')');
+                    mParameters = sb.ToString();
+                }
+
+                return mParameters;
+            }
+        }
+
         extension(MemberInfo member)
         {
             /// <summary>
