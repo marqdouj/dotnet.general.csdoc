@@ -17,6 +17,10 @@ Documentation is dervied from `DisplayAttribute` and the assembly xml documentat
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.3.0`
+  - `ICSDocumentReader`.
+	- `ICSDocument CreateDocument(Type type, bool allMembers = true)`. Added method to handle types	that can't be used with `<T>` i.e. static classes.
+
 - `v10.2.0`
   - `CSDocumentItem`.
 	- `NameAlias`. Added property to override the `Name` when resolving `DisplayName`.

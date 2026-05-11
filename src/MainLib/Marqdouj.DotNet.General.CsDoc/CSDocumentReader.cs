@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
 namespace Marqdouj.DotNet.General.CsDoc
@@ -22,6 +21,14 @@ namespace Marqdouj.DotNet.General.CsDoc
         /// <param name="allMembers"></param>
         /// <returns></returns>
         ICSDocument CreateDocument<T>(bool allMembers = true);
+
+        /// <summary>
+        /// <see cref="CSDocumentReader.CreateDocument(Type, bool)"/>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="allMembers"></param>
+        /// <returns></returns>
+        ICSDocument CreateDocument(Type type, bool allMembers = true);
     }
 
     /// <summary>

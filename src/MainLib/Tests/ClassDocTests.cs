@@ -197,5 +197,17 @@ namespace Tests
             Assert.AreEqual(aliasName, docItem.NameAlias);
             Assert.AreEqual(firstValue, docItem.DisplayName);
         }
+
+        [TestMethod]
+        public void CDocument_Static_Class()
+        {
+            var doc = cdReader.CreateDocument(typeof(MyStaticClass));
+            var docItem = doc.GetItem(nameof(MyStaticClass.GetMyString));
+
+            Assert.IsNotNull(doc);
+            Assert.HasCount(2, doc.Items);
+            Assert.IsNotNull(docItem);
+            Assert.AreEqual("Gets my string.", docItem.Comment?.Summary);
+        }
     }
 }

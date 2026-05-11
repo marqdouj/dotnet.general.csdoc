@@ -182,4 +182,16 @@ namespace Sandbox.XmlLib.Models
         /// </summary>
         public MyModelEnum EnumValue { get; set; }
     }
+
+    /// <summary>
+    /// This is my static class.
+    /// </summary>
+    public static class MyStaticClass
+    {
+        /// <summary>
+        /// Gets my string.
+        /// </summary>
+        /// <returns></returns>
+        public static string? GetMyString() => "my string.";
+    }
 }
