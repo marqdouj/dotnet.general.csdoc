@@ -1,26 +1,23 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Xml.Linq;
 
 namespace Marqdouj.DotNet.General.CsDoc
 {
     /// <summary>
-    ///  Collection of <see cref="CSDocumentItem"/> for a class/enum.
+    ///  Collection of <see cref="CSDocumentItem"/> based on the <see cref="Type"/>.
     ///  Items are added to the collection if they have an associated <see cref="DisplayAttribute"/> or <see cref="CSDocumentXml"/>
     /// </summary>
-    /// <remarks>Supports Class/Enum Type, Constructor, Method, and Property.</remarks>
     public interface ICSDocument
     {
         /// <summary>
-        /// The <see cref="System.Type"/> for the class.
+        /// The <see cref="System.Type"/> associated with the xml documenation.
         /// </summary>
         Type Type { get; }
 
         /// <summary>
-        /// Readonly collection of <see cref="CSDocumentItem"/> for the class.
+        /// Readonly collection of <see cref="CSDocumentItem"/> based on the <see cref="Type"/>.
         /// </summary>
         IReadOnlyCollection<CSDocumentItem> Items { get; }
 
@@ -49,40 +46,25 @@ namespace Marqdouj.DotNet.General.CsDoc
         CSDocumentItem? GetItem(MemberTypes memberType, string name, string parameters = "");
     }
 
-    /// <summary>
-    /// <see cref="ICSDocument"/>
-    /// </summary>
     internal class CSDocument : ICSDocument
     {
         private readonly List<CSDocumentItem> items = [];
 
-        internal CSDocument(Type type, XDocument? xmlDoc, bool allMembers)
+        public CSDocument(Type type, XDocument? xmlDoc, bool allMembers)
         {
-            Items = new ReadOnlyCollection<CSDocumentItem>(items);
             Type = type;
+            Items = new ReadOnlyCollection<CSDocumentItem>(items);
             ProcessItems(xmlDoc, allMembers);
         }
 
-        /// <summary>
-        /// <see cref="System.Type"/>
-        /// </summary>
-        public Type Type { get; } 
+        public Type Type { get; }
 
-        /// <summary>
-        /// Readonly collection of <see cref="CSDocumentItem"/>.
-        /// </summary>
         public IReadOnlyCollection<CSDocumentItem> Items { get; }
 
-        /// <summary>
-        /// Gets the <see cref="CSDocumentItem"/> associated with the <paramref name="name"/>
-        /// </summary>
-        /// <param name="name"><see cref="CSDocumentItem.Name"/></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         public CSDocumentItem? GetItem(string name, string parameters = "")
         {
-            var item = Items.FirstOrDefault(e => 
-                e.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && 
+            var item = Items.FirstOrDefault(e =>
+                e.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
                 e.Parameters.Equals(parameters, StringComparison.OrdinalIgnoreCase));
 
             if (item == null)
@@ -95,35 +77,22 @@ namespace Marqdouj.DotNet.General.CsDoc
             return item;
         }
 
-        /// <summary>
-        /// Gets all the <see cref="CSDocumentItem"/> items associated with the <paramref name="name"/>
-        /// </summary>
-        /// <param name="name"><see cref="CSDocumentItem.Name"/></param>
-        /// <returns></returns>
+        public CSDocumentItem? GetItem(MemberTypes memberType, string name, string parameters = "")
+        {
+            return Items.FirstOrDefault(e =>
+                e.MemberType == memberType &&
+                e.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                e.Parameters.Equals(parameters, StringComparison.OrdinalIgnoreCase));
+        }
+
         public List<CSDocumentItem> GetItems(string name)
         {
             return [.. Items.Where(e => e.Name.Equals(name, StringComparison.OrdinalIgnoreCase))];
         }
 
-        /// <summary>
-        /// Gets the <see cref="CSDocumentXml"/> associated with the <paramref name="memberType"/> and <paramref name="name"/>
-        /// </summary>
-        /// <param name="memberType"><see cref="MemberTypes"/></param>
-        /// <param name="name"><see cref="CSDocumentItem.Name"/></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
-        public CSDocumentItem? GetItem(MemberTypes memberType, string name, string parameters = "")
-        {
-            return Items.FirstOrDefault(e => 
-                e.MemberType == memberType && 
-                e.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
-                e.Parameters.Equals(parameters, StringComparison.OrdinalIgnoreCase));
-        }
-
         private void ProcessItems(XDocument? xmlDoc, bool allMembers)
         {
-            //Process the class
-            var name = $"T:{Type.Namespace}.{Type.Name}";
+            var name = Type.GetXmlDocMemberName(out var cleanName, out var parameters);
             var node = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == name);
             var attribute = Type.GetDisplayAttribute();
             CSDocumentXml? comment = null;
@@ -136,55 +105,33 @@ namespace Marqdouj.DotNet.General.CsDoc
 
             if (Type.IsEnum)
             {
-                var memberType = "F";
-                foreach (Enum member in Enum.GetValues(Type))
-                {
-                    var memberName = member.ToString()!;
-                    var value = Type.GetField(memberName);
-                    attribute = value?.GetDisplayAttribute();
-                    comment = null;
-
-                    var propName = $"{memberType}:{Type.FullName}.{memberName}";
-                    var propNode = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == propName);
-
-                    if (propNode != null)
-                        comment = new CSDocumentXml(propNode, propName, memberName);
-
-                    if (allMembers || attribute != null || comment != null)
-                        items.Add(new CSDocumentItem(memberName, MemberTypes.Field, attribute, comment));
-                }
+                ProcessEnum(xmlDoc, allMembers, ref attribute, ref comment);
             }
             else
             {
-                //Process the members.
-                var members = Type.GetMembers();
-
-                ProcessMembers(xmlDoc, allMembers, ref attribute, ref comment, members);
+                ProcessMembers(Type, xmlDoc, allMembers);
 
                 if (Type.IsInterface)
                 {
                     var derivedInterfaces = Type.Assembly
                         .GetTypes()
-                        .Where(t => t.IsInterface && t != Type && Type.IsAssignableTo(t)) 
+                        .Where(t => t.IsInterface && t != Type && Type.IsAssignableTo(t))
                         .ToList();
 
                     foreach (var derivedInterface in derivedInterfaces)
                     {
-                        members = derivedInterface.GetMembers();
+                        var members = derivedInterface.GetMembers();
 
-                        ProcessMembers(xmlDoc, allMembers, ref attribute, ref comment, members);
+                        ProcessMembers(derivedInterface, xmlDoc, allMembers);
                     }
                 }
             }
         }
 
-        private void ProcessMembers(XDocument? xmlDoc, bool allMembers, ref DisplayAttribute? attribute, ref CSDocumentXml? comment, MemberInfo[] members)
+        private void ProcessMembers(Type type, XDocument? xmlDoc, bool allMembers)
         {
-            foreach (var member in members)
+            foreach (var member in type.GetMembers())
             {
-                var memberName = member.Name;
-                var mParameters = "";
-
                 if (member is MethodInfo m)
                 {
                     //Ignore methods such as 'get_' or 'set_' (accessors) etc.
@@ -192,77 +139,49 @@ namespace Marqdouj.DotNet.General.CsDoc
                         continue;
 
                     //Ignore built-in methods such as 'GetType()', 'GetHashCode()' etc. unless they are overrides.
-                    var isCustom = m.DeclaringType == Type;
+                    var isCustom = m.DeclaringType == type;
                     if (!isCustom)
                     {
                         bool isOverride = m.GetBaseDefinition().DeclaringType != m.DeclaringType;
                         if (!isOverride) continue;
                     }
-
-                    mParameters = m.BuildParameters(out string? memberNameSuffix);
-                    memberName = $"{memberName}{memberNameSuffix}";
                 }
 
-                string? memberType = null;
-                var isConstructor = false;
+                var name = member.GetXmlDocMemberName(out var cleanName, out var parameters);
+                var attribute = member.GetDisplayAttribute();
+                CSDocumentXml? comment = null;
 
-                switch (member.MemberType)
-                {
-                    case MemberTypes.Constructor:
-                        memberType = "M";
-                        memberName = "#ctor";
-                        isConstructor = true;
-                        break;
-                    case MemberTypes.Event:
-                        break;
-                    case MemberTypes.Field:
-                        break;
-                    case MemberTypes.Method:
-                        memberType = "M";
-                        break;
-                    case MemberTypes.Property:
-                        memberType = "P";
-                        break;
-                    case MemberTypes.TypeInfo:
-                        break;
-                    case MemberTypes.Custom:
-                        break;
-                    case MemberTypes.NestedType:
-                        break;
-                    case MemberTypes.All:
-                        break;
-                    default:
-                        break;
-                }
+                var mNode = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == name);
 
-                if (memberType != null)
-                {
-                    attribute = member.GetDisplayAttribute();
-                    comment = null;
+                if (mNode != null)
+                    comment = new CSDocumentXml(mNode, name, member.Name, parameters);
 
-                    var mName = $"{memberType}:{member.DeclaringType?.Namespace}.{member.DeclaringType?.Name}.{memberName}{mParameters}";
-                    var mNode = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == mName);
+                var isConstructor = member.MemberType == MemberTypes.Constructor;
 
-                    if (mNode != null)
-                        comment = new CSDocumentXml(mNode, mName, member.Name, mParameters);
-
-                    if ((allMembers && !isConstructor) || attribute != null || comment != null)
-                        items.Add(new CSDocumentItem(member.Name, member.MemberType, attribute, comment));
-                }
+                if ((allMembers && !isConstructor) || attribute != null || comment != null)
+                    items.Add(new CSDocumentItem(member.Name, member.MemberType, attribute, comment));
             }
         }
-    }
 
-    /// <summary>
-    /// <see cref="ICSDocument"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    internal sealed class CSDocument<T> : CSDocument
-    {
-        private readonly List<CSDocumentItem> items = [];
+        private void ProcessEnum(XDocument? xmlDoc, bool allMembers, ref DisplayAttribute? attribute, ref CSDocumentXml? comment)
+        {
+            var memberType = "F";
+            foreach (Enum member in Enum.GetValues(Type))
+            {
+                var memberName = member.ToString()!;
+                var value = Type.GetField(memberName);
+                attribute = value?.GetDisplayAttribute();
+                comment = null;
 
-        internal CSDocument(XDocument? xmlDoc, bool allMembers) : base(typeof(T), xmlDoc, allMembers) 
-        { 
+                var propName = $"{memberType}:{Type.FullName}.{memberName}";
+                var propNode = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == propName);
+
+                if (propNode != null)
+                    comment = new CSDocumentXml(propNode, propName, memberName);
+
+                if (allMembers || attribute != null || comment != null)
+                    items.Add(new CSDocumentItem(memberName, MemberTypes.Field, attribute, comment));
+            }
         }
     }
 }

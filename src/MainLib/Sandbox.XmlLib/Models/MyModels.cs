@@ -26,17 +26,44 @@ namespace Sandbox.XmlLib.Models
     }
 
     /// <summary>
-    /// My Model Inteface with methods.
+    /// My field class.
     /// </summary>
-    public interface IMyModelWithMethods 
+    public class MyFieldClass
     {
+        /// <summary>
+        /// My field value.
+        /// </summary>
+        public bool MyField;
+    }
+
+    /// <summary>
+    /// My full model Inteface.
+    /// </summary>
+    public interface IMyFullModel
+    {
+        /// <summary>
+        /// The Alias value with get/set.
+        /// </summary>
+        string? Alias { get; set; }
+
+        /// <summary>
+        /// The Name value get only.
+        /// </summary>
+        string? Name { get; }
+
+        /// <summary>
+        /// My Test with no parameters.
+        /// </summary>
+        /// <returns></returns>
+        string? MyTest();
+
         /// <summary>
         /// My Test with IEnumerable{bool}.
         /// </summary>
         /// <param name="flags"></param>
         /// <returns></returns>
         [Display(Name = "My Flags")]
-        string? MyTest(IEnumerable<bool> flags) => "";
+        string? MyTest(IEnumerable<bool> flags);
 
         /// <summary>
         /// My Test with MyModelClassItem.
@@ -44,7 +71,7 @@ namespace Sandbox.XmlLib.Models
         /// <param name="item"></param>
         /// <returns></returns>
         [Display(Name = "My Flags")]
-        string? MyTest(MyModelClassItem item) => "";
+        string? MyTest(MyModelClassItem item);
 
         /// <summary>
         /// My Test with list.
@@ -52,7 +79,7 @@ namespace Sandbox.XmlLib.Models
         /// <param name="flags"></param>
         /// <returns></returns>
         [Display(Name = "My Flags")]
-        string? MyTest(List<bool> flags) => "";
+        string? MyTest(List<bool> flags);
 
         /// <summary>
         /// My Test{T}.
@@ -60,7 +87,7 @@ namespace Sandbox.XmlLib.Models
         /// <param name="flags"></param>
         /// <returns></returns>
         [Display(Name = "My Flags{T}")]
-        string? MyTest<T>(T flags) => "";
+        string? MyTest<T>(T flags);
 
         /// <summary>
         /// My Test{T,P}.
@@ -69,7 +96,7 @@ namespace Sandbox.XmlLib.Models
         /// <param name="other"></param>
         /// <returns></returns>
         [Display(Name = "My Flags{T}")]
-        string? MyTest<T, P>(T flags, P other) => "";
+        string? MyTest<T, P>(T flags, P other);
 
         /// <summary>
         /// My Test{T,P} with bool.
@@ -79,7 +106,130 @@ namespace Sandbox.XmlLib.Models
         /// <param name="other"></param>
         /// <returns></returns>
         [Display(Name = "My Flags{T}")]
-        string? MyTest<T, P>(T flags, bool flag, P other) => "";
+        string? MyTest<T, P>(T flags, bool flag, P other);
+
+        /// <summary>
+        /// My Event handler.
+        /// </summary>
+        event EventHandler? MyEvent;
+
+        /// <summary>
+        /// My Event handler with bool.
+        /// </summary>
+        event EventHandler<bool>? MyEventB;
+    }
+
+    /// <summary>
+    /// My Full model that does a lot.
+    /// </summary>
+    public class MyFullModel : IMyFullModel
+    {
+        /// <summary>
+        /// My Full Model empty Constructor,
+        /// </summary>
+        public MyFullModel()
+        {
+            
+        }
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        public MyFullModel(string? test)
+        {
+            //This constructor should not be included because it has not xml comment.
+        }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
+        /// <summary>
+        /// My Full Model Constructor with parameters,
+        /// </summary>
+        /// <param name="test"></param>
+        public MyFullModel(bool test)
+        {
+            Test = test;
+        }
+
+        /// <summary>
+        /// Non-Inteface property Test.
+        /// </summary>
+        public bool Test { get; }
+
+        /// <summary>
+        /// <inheritdoc cref="IMyFullModel.Alias"/>
+        /// </summary>
+        public string? Alias { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        /// <summary>
+        /// <inheritdoc cref="IMyFullModel.Name"/>
+        /// </summary>
+        public string? Name => throw new NotImplementedException();
+
+        /// <summary>
+        /// <inheritdoc cref="IMyFullModel.MyEvent"/>
+        /// </summary>
+        public event EventHandler? MyEvent;
+
+        /// <summary>
+        /// <inheritdoc cref="IMyFullModel.MyEventB"/>
+        /// </summary>
+        public event EventHandler<bool>? MyEventB;
+
+        /// <summary>
+        /// <inheritdoc cref="IMyFullModel.MyTest(IEnumerable{bool})"/>
+        /// </summary>
+        public string? MyTest(IEnumerable<bool> flags)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="IMyFullModel.MyTest(MyModelClassItem)"/>
+        /// </summary>
+        public string? MyTest(MyModelClassItem item)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="IMyFullModel.MyTest(List{bool})"/>
+        /// </summary>
+        public string? MyTest(List<bool> flags)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="IMyFullModel.MyTest{T}(T)"/>
+        /// </summary>
+        public string? MyTest<T>(T flags)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="IMyFullModel.MyTest{T, P}(T, P)"/>
+        /// </summary>
+        public string? MyTest<T, P>(T flags, P other)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="IMyFullModel.MyTest{T, P}(T, bool, P)"/>
+        /// </summary>
+        public string? MyTest<T, P>(T flags, bool flag, P other)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="IMyFullModel.MyTest()"/>
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public string? MyTest()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>

@@ -17,6 +17,15 @@ Documentation is dervied from `DisplayAttribute` and the assembly xml documentat
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.5.0`
+  - Full re-write on resolving the xml document member element names.
+	- The member types now supported are:
+	  - MemberTypes.Constructor or MemberTypes.Method => 'M'
+	  - MemberTypes.TypeInfo or MemberTypes.NestedType => 'T'
+	  - MemberTypes.Event => 'E'
+	  - MemberTypes.Field => 'F'
+	  - MemberTypes.Property => 'P'
+
 - `v10.4.3`
   - `General`.
 	- `Parameters`. Most items now have a `Parameters` property; which represents the XmlDocument parameters signature.

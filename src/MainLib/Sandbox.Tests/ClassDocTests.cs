@@ -2,7 +2,7 @@
 using Sandbox.XmlLib;
 using Sandbox.XmlLib.Models;
 
-namespace Tests
+namespace Sandbox.Tests
 {
     [TestClass]
     public sealed class ClassDocTests
@@ -67,12 +67,16 @@ namespace Tests
             var doc = cdReader.CreateDocument<MyClass<MyClass>>();
 
             Assert.IsNotNull(doc);
-            Assert.HasCount(4, doc.Items);
-            Assert.AreEqual(summary, doc.Items.First().Comment?.Summary);
+            Assert.HasCount(5, doc.Items);
+
+            var docItem = doc.Items.First();
+
+            Assert.IsNotNull(docItem);
+            Assert.AreEqual(summary, docItem.Comment?.Summary);
             Assert.IsNotNull(doc.Items.First().DisplayAttribute);
             Assert.AreEqual(displayName, doc.Items.First().DisplayAttribute?.Name);
 
-            var docItem = doc.GetItem(".ctor");
+            docItem = doc.GetItem(".ctor");
             Assert.IsNotNull(docItem);
             Assert.AreEqual("The constructor.", docItem.Comment?.Summary);
 
@@ -121,7 +125,7 @@ namespace Tests
             var docItem = doc.GetItem(nameof(IMyModelClass.Alias));
 
             Assert.IsNotNull(doc);
-            Assert.HasCount(7, doc.Items);
+            Assert.HasCount(10, doc.Items);
             Assert.IsNotNull(docItem);
             Assert.AreEqual("The Alias value.", docItem.Comment?.Summary);
         }
@@ -245,10 +249,10 @@ namespace Tests
         [TestMethod]
         public void CDocument_Interface_Methods()
         {
-            var doc = cdReader.CreateDocument<IMyModelWithMethods>();
-            var items = doc.GetItems(nameof(IMyModelWithMethods.MyTest));
+            var doc = cdReader.CreateDocument<IMyFullModel>();
+            var items = doc.GetItems(nameof(IMyFullModel.MyTest));
 
-            Assert.HasCount(6, items);
+            Assert.HasCount(7, items);
 
             foreach (var item in items)
             {
@@ -257,8 +261,8 @@ namespace Tests
                 Console.WriteLine($"{item.Name} {item.Comment.Summary}");
             }
 
-            var docItem = doc.GetItem(nameof(IMyModelWithMethods.MyTest));
-            Assert.IsNull(docItem);
+            var docItem = doc.GetItem(nameof(IMyFullModel.MyTest));
+            Assert.IsNotNull(docItem);
         }
     }
 }

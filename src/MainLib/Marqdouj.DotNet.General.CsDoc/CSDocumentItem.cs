@@ -24,7 +24,7 @@ namespace Marqdouj.DotNet.General.CsDoc
         public string Name { get; }
 
         /// <summary>
-        /// Parameters signature for a method i.e. (System.Double,System.String)
+        /// Parameters signature for a method i.e. (System.Double,System.String), (``1,System.Double), etc.
         /// </summary>
         public string Parameters { get; }
 

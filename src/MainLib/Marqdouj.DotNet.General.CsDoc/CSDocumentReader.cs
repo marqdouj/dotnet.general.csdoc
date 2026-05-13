@@ -10,46 +10,34 @@ namespace Marqdouj.DotNet.General.CsDoc
     public interface ICSDocumentReader
     {
         /// <summary>
-        /// <see cref="CSDocumentReader.AssemblyName"/>
+        /// Assembly name associated with the Xml documentation file.
         /// </summary>
         string? AssemblyName { get; }
 
         /// <summary>
-        /// <see cref="CSDocumentReader.CreateDocument{T}(bool)"/>
+        /// Creates a <see cref="ICSDocument"/> based on the <typeparamref name="T"/>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="allMembers"></param>
+        /// <typeparam name="T">The Type associated with the xml documentation to read.</typeparam>
+        /// <param name="allMembers">Flag to include all custom or override members.</param>
         /// <returns></returns>
         ICSDocument CreateDocument<T>(bool allMembers = true);
 
         /// <summary>
-        /// <see cref="CSDocumentReader.CreateDocument(Type, bool)"/>
+        /// Creates a <see cref="ICSDocument"/> based on the <paramref name="type"/>
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="allMembers"></param>
+        /// <param name="type">The Type associated with the xml documentation to read.</param>
+        /// <param name="allMembers">Flag to include all custom or override members.</param>
         /// <returns></returns>
         ICSDocument CreateDocument(Type type, bool allMembers = true);
     }
 
     /// <summary>
-    /// Creates instances of <see cref="CSDocument{T}"/>.
+    /// Reads an Xml documentation file.
     /// </summary>
-    public class CSDocumentReader : ICSDocumentReader
+    /// <param name="assemblyName">Assembly xml documentation file name without the .xml extension.</param>
+    public class CSDocumentReader(string assemblyName) : ICSDocumentReader
     {
         private XDocument? xmlDoc;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="assemblyName">
-        /// Assembly name associated with the <see langword="class"/> or <see langword="enum"/> <see langword="type"/>
-        /// you will be creating documents for.
-        /// </param>
-        public CSDocumentReader(string assemblyName)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(assemblyName);
-            AssemblyName = assemblyName;
-        }
 
         /// <summary>
         /// Reads xml documentation or <see cref="DisplayAttribute"/> for an assembly <see langword="class"/> or <see langword="enum"/> and it's members.
@@ -65,6 +53,8 @@ namespace Marqdouj.DotNet.General.CsDoc
         {
             try
             {
+                ArgumentException.ThrowIfNullOrWhiteSpace(AssemblyName);
+
                 folder ??= AppDomain.CurrentDomain.BaseDirectory;
                 Filename = Path.Combine(folder, $"{AssemblyName}.xml");
 
@@ -99,51 +89,46 @@ namespace Marqdouj.DotNet.General.CsDoc
         }
 
         /// <summary>
-        /// Assembly name associated with the Xml documentation file.
+        /// <inheritdoc cref="ICSDocumentReader.AssemblyName"/>
         /// </summary>
-        public string? AssemblyName { get; internal set; }
+        public string? AssemblyName { get; } = assemblyName;
 
         /// <summary>
         /// The resolved filename for the Xml documentation file.
         /// </summary>
-        public string? Filename { get; internal set; }
+        public string? Filename { get; private set; }
 
         /// <summary>
         /// Indicates if the xml documentation file has been successfully loaded.
         /// </summary>
         /// <remarks>The document may be loaded, but there may be issues. Check the <see cref="LoadXmlException"/></remarks>
-        public bool XmlLoaded { get; internal set; }
+        public bool XmlLoaded { get; private set; }
 
         /// <summary>
         /// An exception that has occurred during the xml documentation load operation, if any.
         /// </summary>
         /// <remarks>If no exception was thrown during loading, this property returns <see langword="null"/>.</remarks>
-        public Exception? LoadXmlException { get; internal set; }
+        public Exception? LoadXmlException { get; private set; }
 
         /// <summary>
-        /// <see cref="CSDocumentReader.CreateDocument(Type, bool)"/>
+        /// <inheritdoc cref="ICSDocumentReader.CreateDocument{T}(bool)"/>
         /// </summary>
-        /// <typeparam name="T">The type to create the document for. Must be a class or enum. For interfaces use the generic overload.</typeparam>
-        /// <param name="allMembers"></param>
+        /// <typeparam name="T">The Type associated with the xml documentation to read.</typeparam>
+        /// <param name="allMembers">Flag to include all custom or override members.</param>
         /// <returns></returns>
-        public ICSDocument CreateDocument<T>(bool allMembers = true)
+        public ICSDocument CreateDocument<T>(bool allMembers = true) 
         {
             return CreateDocument(typeof(T), allMembers);
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="ICSDocument"/>.
+        /// <inheritdoc cref="ICSDocumentReader.CreateDocument(Type, bool)"/>
         /// </summary>
-        /// <param name="type">The type to create the document for. Must be a class, enum, or interface.</param>
-        /// <param name="allMembers">
-        /// <see langword="true"/> to create items for all custom or override members; 
-        /// otherwise just those that have a <see cref="DisplayAttribute"/> or xml commment. Default is <see langword="true"/>. </param>
+        /// <param name="type">The Type associated with the xml documentation to read.</param>
+        /// <param name="allMembers">Flag to include all custom or override members</param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
         public ICSDocument CreateDocument(Type type, bool allMembers = true)
         {
-            ValidateType(type);
-
             var doc = new CSDocument(type, xmlDoc, allMembers);
             var cdocAssemblyName = doc.Type.Assembly.GetName().Name;
 
@@ -151,17 +136,6 @@ namespace Marqdouj.DotNet.General.CsDoc
                 throw new Exception($"Manager {nameof(AssemblyName)} [{AssemblyName}] does not match document [{cdocAssemblyName}].");
 
             return doc;
-        }
-
-        private static void ValidateType(Type type)
-        {
-            // Runtime enforcement: ensure T is either class, enum, or interface.
-            if (!(type.IsClass || type.IsEnum || type.IsInterface))
-            {
-                throw new InvalidOperationException(
-                    $"Type parameter '{type.Name}' must be a class, enum, or interface."
-                );
-            }
         }
     }
 }

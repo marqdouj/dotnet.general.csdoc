@@ -54,6 +54,11 @@ namespace Sandbox.XmlLib
         }
 
         /// <summary>
+        /// The typed value.
+        /// </summary>
+        public T? Value { get; set;  }
+
+        /// <summary>
         /// The name.
         /// </summary>
         /// <remarks>The name remarks.</remarks>

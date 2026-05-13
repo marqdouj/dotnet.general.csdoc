@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using System.Text;
 
 namespace Marqdouj.DotNet.General.CsDoc
 {
@@ -10,107 +8,98 @@ namespace Marqdouj.DotNet.General.CsDoc
     /// </summary>
     public static class CsDocExtensions
     {
-        extension(MethodInfo info)
+        extension(MemberInfo member)
         {
             /// <summary>
-            /// Builds XmlDocument parameter signature for a method i.e. (System.Double,System.String).
+            /// Resolves the full Xml documenation name for a <see cref="MemberInfo"/>
             /// </summary>
+            /// <param name="cleanName">The fullname without generic type suffix i.e. 'MyMethod``1' resolves to 'MyMethod'</param>
+            /// <param name="parameters">The xml documentation parameters signature</param>
             /// <returns></returns>
-            public string BuildParameters(out string nameSuffix)
+            internal string GetXmlDocMemberName(out string cleanName, out string parameters)
             {
-                nameSuffix = "";
-                var parameters = info.GetParameters().ToList();
-                var mParameters = "";
+                ArgumentNullException.ThrowIfNull(member);
 
-                if (parameters.Count > 0)
+                cleanName = "";
+                parameters = "";
+
+                var prefixCode = member.MemberType switch
                 {
-                    var sb = new StringBuilder();
-                    var genIdx = 0;
+                    MemberTypes.Constructor or MemberTypes.Method => 'M',
+                    MemberTypes.Event => 'E',
+                    MemberTypes.Field => 'F',
+                    MemberTypes.Property => 'P',
+                    MemberTypes.TypeInfo or MemberTypes.NestedType => 'T',
+                    _ => ' ',
+                };
 
-                    foreach (var param in parameters)
-                    {
-                        if (sb.Length > 0)
-                            sb.Append(',');
+                if (string.IsNullOrWhiteSpace(prefixCode.ToString()))
+                    return "";
 
-                        var type = param.ParameterType;
+                var memberName = (member.MemberType == MemberTypes.Constructor) ? "#ctor" : member.Name;
+                var fullName = "";
 
-                        if (type.IsValueType || type == typeof(string))
-                        {
-                            sb.Append(param.ParameterType.FullName);
-                        }
-                        else if (param.ParameterType.IsClass)
-                        {
-                            sb.Append(param.ParameterType.FullName);
-                        }
-                        else if (param.IsIEnumerable())
-                        {
-                            var name = type.FullName ?? type.Name;
-
-                            // If you want to remove the generic arity suffix (`1, `2, etc.)
-                            string cleanName = type.IsGenericType
-                                ? name[..name.IndexOf('`')]
-                                : name;
-
-                            var arg = type.GenericTypeArguments?.FirstOrDefault();
-                            var argValue = $"{{{arg?.FullName}}}" ?? "";
-                            sb.Append($"{cleanName}{argValue}");
-                        }
-                        else
-                        {
-                            if (type.IsGenericParameter)
-                            {
-                                sb.Append($"``{genIdx}");
-                                genIdx++;
-                            }
-                            else
-                            {
-                                sb.Append(type.FullName);
-                            }
-                        }
-                    }
-
-                    if (genIdx > 0)
-                        nameSuffix = $"``{genIdx}";
-
-                    if (sb.Length > 0)
-                    {
-                        sb.Insert(0, '(');
-                        sb.Append(')');
-                    }
-
-                    mParameters = sb.ToString();
-                    //Console.WriteLine(mParameters);
+                if (member.DeclaringType != null)
+                {
+                    var tMemberName = member.DeclaringType.FullName ?? "<unresolved>";
+                    var idx = tMemberName.IndexOf('[');
+                    if (idx > 0)
+                        tMemberName = tMemberName[..idx];
+                    fullName = $"{tMemberName}.{memberName}";
+                }
+                else
+                {
+                    var tMember = (member as Type);
+                    fullName = $"{(member as Type)?.Namespace ?? "<unresolved>"}.{memberName}";
                 }
 
-                return mParameters;
+                cleanName = fullName;
+
+                // Handle method parameters
+                if (member is MethodBase method)
+                {
+                    var items = method.GetParameters();
+
+                    if (items.Length > 0)
+                    {
+                        var nameSuffix = "";
+                        var genIdx = 0;
+                        var paramTypes = items
+                            .Select(p => p.ParameterType.GetTypeName(ref genIdx))
+                            .ToArray();
+
+                        if (genIdx > 0)
+                            nameSuffix = $"``{genIdx}";
+
+                        parameters = $"({string.Join(",", paramTypes)})";
+                        fullName = $"{fullName}{nameSuffix}{parameters}";
+                    }
+                }
+
+                return $"{prefixCode}:{fullName}";
             }
         }
 
-        extension(ParameterInfo parameter)
+        extension(Type type)
         {
-            /// <summary>
-            /// Checks if a ParameterInfo represents an IEnumerable (generic or non-generic).
-            /// </summary>
-            bool IsIEnumerable()
+            private string? GetTypeName(ref int genIdx)
             {
-                if (parameter == null) return false;
-
-                Type type = parameter.ParameterType;
-
-                // Handle arrays (they are IEnumerable)
-                if (type.IsArray) return true;
-
-                // Check non-generic IEnumerable
-                if (typeof(IEnumerable).IsAssignableFrom(type)) return true;
-
-                // Check generic IEnumerable<T>
-                if (type.GetInterfaces().Any(i =>
-                    i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+                if (type.IsGenericType)
                 {
-                    return true;
+                    var idx = 0;
+                    var genericTypeName = type.GetGenericTypeDefinition().FullName;
+                    genericTypeName = genericTypeName?[..genericTypeName.IndexOf('`')];
+                    var genericArgs = string.Join(",", type.GetGenericArguments().Select(t => t.GetTypeName(ref idx)));
+                    return $"{genericTypeName}{{{genericArgs}}}";
+                }
+                else if (type.IsGenericParameter)
+                {
+                    var genParam = $"``{genIdx}";
+                    genIdx++;
+                    return genParam;
                 }
 
-                return false;
+                return type.FullName;
             }
         }
 
