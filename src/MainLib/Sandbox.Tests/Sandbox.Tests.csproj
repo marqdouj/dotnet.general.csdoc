@@ -1,4 +1,4 @@
-﻿<Project Sdk="MSTest.Sdk/4.0.2">
+﻿<Project Sdk="MSTest.Sdk/4.2.3">
 
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
@@ -11,6 +11,18 @@
   <ItemGroup>
     <ProjectReference Include="..\Marqdouj.DotNet.General.CsDoc\Marqdouj.DotNet.General.CsDoc.csproj" />
     <ProjectReference Include="..\Sandbox.XmlLib\Sandbox.XmlLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="18.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="MSTest.TestAdapter" Version="4.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="MSTest.TestFramework" Version="4.2.3" />
   </ItemGroup>
 
 </Project>
