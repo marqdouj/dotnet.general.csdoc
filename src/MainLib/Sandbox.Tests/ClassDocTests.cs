@@ -67,7 +67,7 @@ namespace Sandbox.Tests
             var doc = cdReader.CreateDocument<MyClass<MyClass>>();
 
             Assert.IsNotNull(doc);
-            Assert.HasCount(5, doc.Items);
+            Assert.HasCount(8, doc.Items);
 
             var docItem = doc.Items.First();
 
@@ -88,8 +88,8 @@ namespace Sandbox.Tests
             docItem = doc.GetItem(nameof(MyClass<>.DoStuff));
             Assert.IsNotNull(docItem);
             Assert.AreEqual("Do some stuff.", docItem.Comment?.Summary);
-            Assert.AreEqual("Do stuff remarks.", docItem.Comment?.Remarks);
-            Assert.AreEqual("Do stuff returns.", docItem.Comment?.Returns);
+            Assert.AreEqual("Do stuff remarks 1.", docItem.Comment?.Remarks);
+            Assert.AreEqual("Do stuff returns 1.", docItem.Comment?.Returns);
         }
 
         [TestMethod]

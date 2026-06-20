@@ -1,10 +1,16 @@
 # dotnet.general.csdoc
 
-## Summary
-Resolves some of the documentation for a Class/Enum and it's members.
-Documentation is dervied from `DisplayAttribute` and the assembly xml documentation file (if it exists).
+## Features (New)
+-  A simpler implementation for reading an XML documentation file.
+	- `XmlDocumentReader`
+	  - Loads all member nodes found in the file. They can be accessed using the 'Members' property. 
+	  - Search for members using the `GetMembers` method for a `Type`, or implement your own custom search for items in the `Members` collection.
+	  - Improved logic for resolving comments that contain items like `cref`, `inheritdoc`, `see`, etc.
 
-## Features
+## Features (Legacy)
+-  Resolves some of the documentation for a Class/Enum and it's members. 
+   Documentation is dervied from `DisplayAttribute` and the assembly xml documentation file (if it exists).
+
 - `Classes`.
   - `CSDocumentReader`. Creates instances of `CSDocument`.
   - `CSDocument`. Manages a collection of `CSDocumentItem` for a class or enum.
@@ -17,6 +23,9 @@ Documentation is dervied from `DisplayAttribute` and the assembly xml documentat
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.6.0`
+  - `XmlDocumentReader (New)`.
+	- A simpler implementation for reading an XML documentation file.
 - `v10.5.0`
   - Full re-write on resolving the xml document member element names.
 	- The member types now supported are:

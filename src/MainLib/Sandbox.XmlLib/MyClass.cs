@@ -27,6 +27,7 @@ namespace Sandbox.XmlLib
     /// <summary>
     /// My test class.
     /// </summary>
+    /// <summary>second summary</summary>
     [Display(Name = "MyClass Name")]
     public class MyClass
     {
@@ -59,6 +60,26 @@ namespace Sandbox.XmlLib
         public T? Value { get; set;  }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="P">The typeparam P is this...</typeparam>
+        /// <param name="value">The value for P.</param>
+        public void SetValue<P>(P value) where P:struct
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Creates a new instance of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="Y">The typeparam Y is this...<see cref="MyClass{T}"/></typeparam>
+        /// <returns></returns>
+        public Y Create<Y>() where Y : new()
+        {
+            return new Y();
+        }
+
+        /// <summary>
         /// The name.
         /// </summary>
         /// <remarks>The name remarks.</remarks>
@@ -66,10 +87,17 @@ namespace Sandbox.XmlLib
         public string? Name { get; set; }
 
         /// <summary>
+        /// The Flag. If <see langword="true"/> then this... else that. <see href="www.myorg.com"/>
+        /// </summary>
+        public bool? Flag { get; set; }
+
+        /// <summary>
         /// Do some stuff.
         /// </summary>
-        /// <remarks>Do stuff remarks.</remarks>
-        /// <returns>Do stuff returns.</returns>
+        /// <remarks>Do stuff remarks 1.</remarks>
+        /// <remarks>Do stuff remarks 2.</remarks>
+        /// <returns>Do stuff returns 1.</returns>
+        /// <returns>Do stuff returns 2.</returns>
         public void DoStuff()
         {
 

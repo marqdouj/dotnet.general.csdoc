@@ -47,7 +47,7 @@ namespace Sandbox.XmlLib.Models
         string? Alias { get; set; }
 
         /// <summary>
-        /// The Name value get only.
+        /// The Name value get only. To override use the <see cref="Alias"/> property. Then some other stuff.
         /// </summary>
         string? Name { get; }
 
@@ -60,7 +60,7 @@ namespace Sandbox.XmlLib.Models
         /// <summary>
         /// My Test with IEnumerable{bool}.
         /// </summary>
-        /// <param name="flags"></param>
+        /// <param name="flags">The 'flags' parameter.</param>
         /// <returns></returns>
         [Display(Name = "My Flags")]
         string? MyTest(IEnumerable<bool> flags);
@@ -68,7 +68,7 @@ namespace Sandbox.XmlLib.Models
         /// <summary>
         /// My Test with MyModelClassItem.
         /// </summary>
-        /// <param name="item"></param>
+        /// <param name="item">The 'item' parameter.</param>
         /// <returns></returns>
         [Display(Name = "My Flags")]
         string? MyTest(MyModelClassItem item);
@@ -76,7 +76,7 @@ namespace Sandbox.XmlLib.Models
         /// <summary>
         /// My Test with list.
         /// </summary>
-        /// <param name="flags"></param>
+        /// <param name="flags">The 'flags' parameter.</param>
         /// <returns></returns>
         [Display(Name = "My Flags")]
         string? MyTest(List<bool> flags);
@@ -92,8 +92,8 @@ namespace Sandbox.XmlLib.Models
         /// <summary>
         /// My Test{T,P}.
         /// </summary>
-        /// <param name="flags"></param>
-        /// <param name="other"></param>
+        /// <param name="flags">The 'flags' parameter.</param>
+        /// <param name="other">The 'other' parameter.</param>
         /// <returns></returns>
         [Display(Name = "My Flags{T}")]
         string? MyTest<T, P>(T flags, P other);
@@ -101,9 +101,9 @@ namespace Sandbox.XmlLib.Models
         /// <summary>
         /// My Test{T,P} with bool.
         /// </summary>
-        /// <param name="flags"></param>
-        /// <param name="flag"></param>
-        /// <param name="other"></param>
+        /// <param name="flags">The 'flags' parameter.</param>
+        /// <param name="flag">The 'flag' parameter.</param>
+        /// <param name="other">The 'other' parameter.</param>
         /// <returns></returns>
         [Display(Name = "My Flags{T}")]
         string? MyTest<T, P>(T flags, bool flag, P other);
@@ -423,17 +423,17 @@ namespace Sandbox.XmlLib.Models
         /// <summary>
         /// Gets my other string.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
+        /// <param name="x">Longitude</param>
+        /// <param name="y">Latitude</param>
         /// <returns></returns>
         public static string? GetMyOtherString(double x, double y) => $"[{x},{y}]";
 
         /// <summary>
         /// Gets my other string with z.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
+        /// <param name="x">Longitude</param>
+        /// <param name="y">Latitude</param>
+        /// <param name="z">Elevation</param>
         /// <returns></returns>
         public static string? GetMyOtherString(double x, double y, double z) => $"[{x},{y},{z}]";
 

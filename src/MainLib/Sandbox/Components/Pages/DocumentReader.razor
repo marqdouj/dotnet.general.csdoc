@@ -1,0 +1,97 @@
+﻿@page "/document-reader"
+@rendermode InteractiveServer
+@inject ILogger<DocumentReader> Logger
+@inject IToastService ToastService
+
+<PageTitle>Document Reader</PageTitle>
+
+<FluentLayout>
+    <FluentHeader>Document Reader</FluentHeader>
+
+    <FluentToolbar>
+        <FluentButton IconStart="@(new Icons.Regular.Size16.Open())" Title="Open Document" OnClick="OpenDocument" />
+        <FluentButton IconStart="@(new Icons.Regular.Size16.Teaching())" Title="Test" OnClick="Test" />
+    </FluentToolbar>
+
+    <FluentStack Orientation="Orientation.Vertical">
+        <div style="width:100%; height:400px; overflow:auto">
+            <FluentDataGrid Items="@reader?.Members.AsQueryable()"
+                            TGridItem="XmlDocumentMember"
+                            ResizableColumns="true"
+                            RowSize="DataGridRowSize.Medium"
+                            GenerateHeader="GenerateHeaderOption.Sticky"
+                            MultiLine="true"
+                            AutoFit="true">
+                <PropertyColumn Property="@(c => c.Position)" />
+                <PropertyColumn Property="@(c => c.Fullname)" />
+                <PropertyColumn Property="@(c => c.MemberType)" />
+                <TemplateColumn Title="Params">
+                    @if (context.Parameters.Count > 0)
+                    {
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.DesignIdeas())" OnClick="@(() => SetActiveRow(context))" />
+                    }
+                </TemplateColumn>
+                <PropertyColumn Property="@(c => c.Summary)" />
+                <PropertyColumn Property="@(c => c.Remarks)" />
+                <PropertyColumn Property="@(c => c.Returns)" />
+            </FluentDataGrid>
+        </div>
+
+        <FluentCard Height="150px">
+            <FluentStack Orientation="Orientation.Vertical">
+                @foreach (var item in activeRow?.Parameters ?? [])
+                {
+                    <FluentLabel>@item.Name: @item.Value</FluentLabel>
+                }
+            </FluentStack>
+        </FluentCard>
+    </FluentStack>
+</FluentLayout>
+
+@code {
+    private XmlDocumentReader? reader;
+    private XmlDocumentMember? activeRow;
+
+    private async Task OpenDocument()
+    {
+        try
+        {
+            await Task.CompletedTask;
+
+            reader = new XmlDocumentReader("Sandbox.XmlLib");
+            reader.LoadXml(logger: Logger);
+
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.ShowError(ex.Message);
+        }
+    }
+
+    private void SetActiveRow(XmlDocumentMember member)
+    {
+        activeRow = member;
+    }
+
+    private void Test()
+    {
+        try
+        {
+            var items = reader!.GetMembers<MyClass<MyClass>>();
+            foreach (var item in items)
+            {
+                Console.WriteLine($"Name:{item.Name}, Fullname:{item.Fullname}");
+                foreach (var p in item.Parameters)
+                {
+                    Console.WriteLine($"    Name:{p.Name}, Type:{p.ParameterType}, Value:{p.Value}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.ShowError(ex.Message);
+        }
+    }
+}

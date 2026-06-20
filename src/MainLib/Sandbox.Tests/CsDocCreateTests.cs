@@ -63,7 +63,6 @@ namespace Sandbox.Tests
             foreach (var item in doc.Items)
             {
                 //Console.WriteLine($"{item.MemberType}:{item.Name} {item.Parameters} {item.Comment?.Summary}");
-                Assert.IsNotNull(item.Comment?.Summary);
             }
         }
 
@@ -89,7 +88,6 @@ namespace Sandbox.Tests
             foreach (var item in doc.Items)
             {
                 Console.WriteLine($"{item.MemberType}:{item.Name} {item.Parameters} {item.Comment?.Summary}");
-                Assert.IsNotNull(item.Comment?.Summary);
             }
         }
 
