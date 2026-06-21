@@ -1,5 +1,6 @@
 ﻿@page "/document-reader"
 @rendermode InteractiveServer
+@using System.Reflection
 @inject ILogger<DocumentReader> Logger
 @inject IToastService ToastService
 
@@ -9,13 +10,16 @@
     <FluentHeader>Document Reader</FluentHeader>
 
     <FluentToolbar>
-        <FluentButton IconStart="@(new Icons.Regular.Size16.Open())" Title="Open Document" OnClick="OpenDocument" />
-        <FluentButton IconStart="@(new Icons.Regular.Size16.Teaching())" Title="Test" OnClick="Test" />
+        <FluentSelect Items="@typeItems"
+                      OptionText="@(o => o?.Name ?? "All")"
+                      OptionValue="@(o => o?.TypeName)"
+                      TOption="XmlDocumentMember"
+                      ValueChanged="OnValueChanged" />
     </FluentToolbar>
 
     <FluentStack Orientation="Orientation.Vertical">
         <div style="width:100%; height:400px; overflow:auto">
-            <FluentDataGrid Items="@reader?.Members.AsQueryable()"
+            <FluentDataGrid Items="@filteredItems.AsQueryable()"
                             TGridItem="XmlDocumentMember"
                             ResizableColumns="true"
                             RowSize="DataGridRowSize.Medium"
@@ -51,16 +55,43 @@
 @code {
     private XmlDocumentReader? reader;
     private XmlDocumentMember? activeRow;
+    private readonly List<XmlDocumentMember?> typeItems = [];
+    private List<XmlDocumentMember> filteredItems = [];
 
-    private async Task OpenDocument()
+    protected override void OnInitialized()
     {
         try
         {
-            await Task.CompletedTask;
-
             reader = new XmlDocumentReader("Sandbox.XmlLib");
-            reader.LoadXml(logger: Logger);
+            reader.LoadXml(logger: Logger, throwAnyException: true);
 
+            var tMembers = reader.Members
+                .Where(e => e.MemberType == MemberTypes.TypeInfo || e.MemberType == MemberTypes.NestedType)
+                .OrderBy(e => e.Fullname);
+
+            typeItems.Add(null);
+            typeItems.AddRange(tMembers);
+            OnValueChanged(typeItems.FirstOrDefault()?.TypeName);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.ShowError(ex.Message);
+        }
+    }
+
+    private void OnValueChanged(string? value)
+    {
+        Console.WriteLine($"OnValueChanged: {value}");
+        try
+        {
+            if (value == null)
+            {
+                filteredItems = reader!.Members.ToList();
+                return;
+            }
+
+            filteredItems = reader!.GetMembers(value);
         }
         catch (Exception ex)
         {
@@ -72,26 +103,5 @@
     private void SetActiveRow(XmlDocumentMember member)
     {
         activeRow = member;
-    }
-
-    private void Test()
-    {
-        try
-        {
-            var items = reader!.GetMembers<MyClass<MyClass>>();
-            foreach (var item in items)
-            {
-                Console.WriteLine($"Name:{item.Name}, Fullname:{item.Fullname}");
-                foreach (var p in item.Parameters)
-                {
-                    Console.WriteLine($"    Name:{p.Name}, Type:{p.ParameterType}, Value:{p.Value}");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, null);
-            ToastService.ShowError(ex.Message);
-        }
     }
 }

@@ -31,9 +31,10 @@ namespace Marqdouj.DotNet.General.CsDoc
         /// If <see langword="null"/> then the <see cref="AppDomain.CurrentDomain"/> / <see cref="AppDomain.BaseDirectory"/> is used.
         /// </param>
         /// <param name="logger">Optional <see cref="ILogger"/> for <see cref="Exception"/>.</param>
+        /// <param name="throwAnyException">If <see langword="true"/> then throw any exception. Default is <see langword="false"/>.</param>
         /// <exception cref="FileNotFoundException"></exception>
         /// <returns><see langword="true"/> if the document was loaded, but there may be associated issues. Also check the <see cref="LoadXmlException"/></returns>
-        public bool LoadXml(string? folder = null, ILogger? logger = null)
+        public bool LoadXml(string? folder = null, ILogger? logger = null, bool throwAnyException = false)
         {
             try
             {
@@ -63,13 +64,32 @@ namespace Marqdouj.DotNet.General.CsDoc
                     throw new Exception("Error resolving 'assembly' node.", ex);
                 }
 
-                ParseMembers(xmlDoc, logger);
+                var assemblyFilename = Path.Combine(folder, $"{AssemblyName}.dll");
+                var types = new List<Type>();
+
+                if (File.Exists(assemblyFilename))
+                {
+                    try
+                    {
+                        var assembly = Assembly.LoadFrom(assemblyFilename);
+                        types = [.. assembly.GetTypes()];
+                    }
+                    catch (Exception ex)
+                    {
+                        logger?.LogError(ex, "Failed to load assembly types.");
+                    }
+                }
+
+                ParseMembers(xmlDoc, logger, types);
             }
             catch (Exception ex)
             {
                 LoadXmlException = ex;
                 logger?.LogError(ex, "Error loading XML documentation file.");
             }
+
+            if (throwAnyException && LoadXmlException != null)
+                throw LoadXmlException;
 
             return XmlLoaded;
         }
@@ -136,7 +156,23 @@ namespace Marqdouj.DotNet.General.CsDoc
             return members;
         }
 
-        private void ParseMembers(XDocument xmlDoc, ILogger? logger)
+        /// <summary>
+        /// Gets all members for a specific TypeName.
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <returns></returns>
+        public List<XmlDocumentMember> GetMembers(string typeName)
+        {
+            var type = members.FirstOrDefault(e => e.TypeName.Equals(typeName, StringComparison.OrdinalIgnoreCase))?.Type;
+            if (type != null)
+                return GetMembers(type);
+
+            var searchName = $":{typeName}";
+            var items = Members.Where(e => e.Fullname.Contains(searchName, StringComparison.OrdinalIgnoreCase));
+            return [.. items];
+        }
+
+        private void ParseMembers(XDocument xmlDoc, ILogger? logger, List<Type> types)
         {
             members.Clear();
 
@@ -159,7 +195,8 @@ namespace Marqdouj.DotNet.General.CsDoc
                 };
 
                 member.SetParameters(GetParameters(xmlMember));
-            
+                member.Type = types.FirstOrDefault(e => !string.IsNullOrWhiteSpace(e.FullName) && e.FullName.Equals(member.TypeName, StringComparison.Ordinal));
+
                 members.Add(member);
                 position++;
             }
@@ -322,10 +359,28 @@ namespace Marqdouj.DotNet.General.CsDoc
                     var text = value.Substring(startPosn, endPosn - startPosn + 2);
                     var refText = GetRefText(RefTextType.CRef, text);
                     var subtext = "";
+                    var isLangword = false;
 
                     if (!string.IsNullOrWhiteSpace(refText))
                     {
                         var namePosn = refText.LastIndexOf('.');
+                        var paren = refText.IndexOf('(');
+
+                        if (paren > -1)
+                        {
+                            var index = refText.IndexOf('.');
+                            namePosn = index;
+
+                            while (index < paren)
+                            {
+                                var current = refText.IndexOf('.', index + 1);
+
+                                if (current < paren)
+                                    namePosn = current;
+
+                                index = current;
+                            }
+                        }
 
                         if (namePosn > -1)
                             subtext = refText[(namePosn + 1)..];
@@ -338,6 +393,7 @@ namespace Marqdouj.DotNet.General.CsDoc
 
                     if (string.IsNullOrWhiteSpace(subtext))
                     {
+                        isLangword = true;
                         subtext = GetRefText(RefTextType.Langword, text);
                     }
 
@@ -426,6 +482,18 @@ namespace Marqdouj.DotNet.General.CsDoc
         /// The resolved name 'signature'. Normally used for searching.
         /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// The Type for members where <see cref="MemberType"/> is <see cref="MemberTypes.TypeInfo"/>.
+        /// </summary>
+        /// <remarks>An attempt will be made to resolve the <see cref="Type"/> when creating the instance.
+        /// If the attempt fails the value will be <see langword="null"/>.</remarks>
+        public Type? Type { get; internal set; }
+
+        /// <summary>
+        /// The TypeName for members where <see cref="MemberType"/> is <see cref="MemberTypes.TypeInfo"/>.
+        /// </summary>
+        public string TypeName => Type != null ? Type.FullName! : (MemberType == MemberTypes.TypeInfo ? Fullname[2..] : "");
 
         /// <summary>
         /// <see cref="MemberTypes"/>

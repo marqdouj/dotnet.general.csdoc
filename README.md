@@ -23,6 +23,13 @@
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.6.1`
+  - `XmlDocumentReader`.
+	- `LoadXml`. Added optional flag `throwAnyException`. Default is false.
+  - `XmlDocumentMember`.
+	- `Type`. New property for `TypeInfo` members.
+	- `TypeName`. New property for `TypeInfo` members.
+	- `GetMembers(string typeName)`. New method for getting members based on the `TypeName`.
 - `v10.6.0`
   - `XmlDocumentReader (New)`.
 	- A simpler implementation for reading an XML documentation file.
