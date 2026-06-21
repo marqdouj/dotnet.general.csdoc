@@ -359,7 +359,6 @@ namespace Marqdouj.DotNet.General.CsDoc
                     var text = value.Substring(startPosn, endPosn - startPosn + 2);
                     var refText = GetRefText(RefTextType.CRef, text);
                     var subtext = "";
-                    var isLangword = false;
 
                     if (!string.IsNullOrWhiteSpace(refText))
                     {
@@ -393,7 +392,6 @@ namespace Marqdouj.DotNet.General.CsDoc
 
                     if (string.IsNullOrWhiteSpace(subtext))
                     {
-                        isLangword = true;
                         subtext = GetRefText(RefTextType.Langword, text);
                     }
 
