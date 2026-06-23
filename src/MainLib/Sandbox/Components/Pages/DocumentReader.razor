@@ -28,6 +28,7 @@
                             AutoFit="true">
                 <PropertyColumn Property="@(c => c.Position)" />
                 <PropertyColumn Property="@(c => c.Fullname)" />
+                <PropertyColumn Property="@(c => c.Name)" />
                 <PropertyColumn Property="@(c => c.MemberType)" />
                 <TemplateColumn Title="Params">
                     @if (context.Parameters.Count > 0)

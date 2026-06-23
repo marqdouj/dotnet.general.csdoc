@@ -8,14 +8,13 @@ namespace Marqdouj.DotNet.General.CsDoc
     /// </summary>
     public class XmlDocumentMember
     {
-        private List<XmlDocumentMemberParameter> parameters = [];
+        private readonly List<XmlDocumentMemberParameter> parameters = [];
 
-        internal XmlDocumentMember(int position, string fullname)
+        internal XmlDocumentMember(int position, string fullname, string name)
         {
             Position = position;
             Fullname = fullname;
-            var index = fullname.LastIndexOf('.');
-            Name = index > -1 ? fullname[(index + 1)..] : "";
+            Name = name;
             Parameters = new ReadOnlyCollection<XmlDocumentMemberParameter>(parameters);
         }
 

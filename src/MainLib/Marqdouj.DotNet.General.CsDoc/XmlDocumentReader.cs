@@ -181,14 +181,15 @@ namespace Marqdouj.DotNet.General.CsDoc
 
             foreach (var xmlMember in xmlMembers)
             {
-                var name = xmlMember.Attribute("name")?.Value ?? "";
+                var fullname = xmlMember.Attribute("name")?.Value ?? "";
 
-                if (string.IsNullOrWhiteSpace(name))
+                if (string.IsNullOrWhiteSpace(fullname))
                     logger?.LogError("Attribute 'name' is missing for member at position {position}.", position);
 
-                var member = new XmlDocumentMember(position, name)
+                var name = ParseNameFromFullname(fullname);
+                var member = new XmlDocumentMember(position, fullname, name)
                 {
-                    MemberType = ParseMemberType(name),
+                    MemberType = ParseMemberType(fullname),
                     Summary = ParseComment(xmlMember, "summary"),
                     Remarks = ParseComment(xmlMember, "remarks"),
                     Returns = ParseComment(xmlMember, "returns"),
@@ -281,6 +282,75 @@ namespace Marqdouj.DotNet.General.CsDoc
             return innerText;
         }
 
+        private static string ParseNameFromFullname(string refText)
+        {
+            var dotPosn = refText.LastIndexOf('.');
+            var parenPosn = refText.IndexOf('(');
+            var tickPosn = refText.IndexOf('`');
+            var ctorPosn = refText.IndexOf("#ctor");
+            var cutoffPosn = -1;
+
+            if (ctorPosn > -1)
+            {
+                dotPosn = ctorPosn - 1;
+            }
+            else if (parenPosn > -1 && tickPosn > -1)
+            {
+                if (tickPosn < parenPosn)
+                {
+                    //If dot is in beween then use that posn.
+                    var posn = refText.IndexOf('.', tickPosn);
+                    if (posn > -1 && posn < parenPosn)
+                    {
+                        dotPosn = posn;
+                    }
+                    else if (dotPosn > parenPosn)
+                    {
+                        cutoffPosn = tickPosn;
+                    }
+                }
+                else
+                {
+                    cutoffPosn = parenPosn;
+                }
+            }
+            else if (parenPosn > -1)
+            {
+                cutoffPosn = parenPosn;
+            }
+
+            var name = "";
+
+            if (cutoffPosn > -1)
+            {
+                var index = refText.IndexOf('.');
+                dotPosn = index;
+
+                while (index < cutoffPosn)
+                {
+                    index++;
+                    var current = refText.IndexOf('.', index);
+                   
+
+                    if (current < 0)
+                    {
+                        index = cutoffPosn;
+                        continue;
+                    }
+
+                    if (current < cutoffPosn)
+                        dotPosn = current;
+
+                    index = current;
+                }
+            }
+
+            if (dotPosn > -1)
+                name = refText[(dotPosn + 1)..];
+
+            return name;
+        }
+
         private static string ParseTypeParamRef(string value)
         {
             var startPosn = value.IndexOf("<typeparamref", StringComparison.OrdinalIgnoreCase);
@@ -362,27 +432,28 @@ namespace Marqdouj.DotNet.General.CsDoc
 
                     if (!string.IsNullOrWhiteSpace(refText))
                     {
-                        var namePosn = refText.LastIndexOf('.');
-                        var paren = refText.IndexOf('(');
+                        subtext = ParseNameFromFullname(refText);
+                        //var namePosn = refText.LastIndexOf('.');
+                        //var paren = refText.IndexOf('(');
 
-                        if (paren > -1)
-                        {
-                            var index = refText.IndexOf('.');
-                            namePosn = index;
+                        //if (paren > -1)
+                        //{
+                        //    var index = refText.IndexOf('.');
+                        //    namePosn = index;
 
-                            while (index < paren)
-                            {
-                                var current = refText.IndexOf('.', index + 1);
+                        //    while (index < paren)
+                        //    {
+                        //        var current = refText.IndexOf('.', index + 1);
 
-                                if (current < paren)
-                                    namePosn = current;
+                        //        if (current < paren)
+                        //            namePosn = current;
 
-                                index = current;
-                            }
-                        }
+                        //        index = current;
+                        //    }
+                        //}
 
-                        if (namePosn > -1)
-                            subtext = refText[(namePosn + 1)..];
+                        //if (namePosn > -1)
+                        //    subtext = refText[(namePosn + 1)..];
                     }
 
                     if (string.IsNullOrWhiteSpace(subtext))
