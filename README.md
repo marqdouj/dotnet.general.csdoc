@@ -23,6 +23,13 @@
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.6.2`
+  - `XmlDocumentReader`.
+	- Fixed issue with parsing `XmlDocumentMember.Name` where the method has parameters.
+  - `XmlDocumentMember`.
+	- Added extension methods:
+	  - `GetMemberByName`. Gets the first member that matches the `name` parameter.
+	  - `GetMembersWithName`. Gets all members that start with the `name` parameter.
 - `v10.6.1`
   - `XmlDocumentReader`.
 	- `LoadXml`. Added optional flag `throwAnyException`. Default is false.
