@@ -63,6 +63,9 @@
     {
         try
         {
+            XmlDocumentReader docReader = new("Marqdouj.DotNet.Web.JsInterop.Azure.Maps");
+            docReader.LoadXml(throwAnyException: true);
+
             reader = new XmlDocumentReader("Sandbox.XmlLib");
             reader.LoadXml(logger: Logger, throwAnyException: true);
 

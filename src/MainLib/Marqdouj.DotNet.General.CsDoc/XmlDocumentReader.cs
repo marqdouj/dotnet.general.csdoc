@@ -224,12 +224,13 @@ namespace Marqdouj.DotNet.General.CsDoc
         private static List<XmlDocumentMemberParameter> GetParameters(XElement node)
         {
             var items = new List<XmlDocumentMemberParameter>();
+            var fullname = node.Attribute("name")?.Value ?? "";
 
             foreach (var element in node.Elements("param"))
             {
                 var name = element.Attribute("name")?.Value ?? "#Missing#";
                 var value = GetRawComment(element, "param") ?? "";
-                value = ParseInheritDoc(element, value);
+                value = ParseInheritDoc(element, value, fullname);
                 value = ParseTypeParamRef(value);
                 value = ParseSee(value);
                 items.Add(new XmlDocumentMemberParameter(XmlDocumentMemberParameterType.Param, name, value));
@@ -239,7 +240,7 @@ namespace Marqdouj.DotNet.General.CsDoc
             {
                 var name = element.Attribute("name")?.Value ?? "#Missing#";
                 var value = GetRawComment(element, "typeparam") ?? "";
-                value = ParseInheritDoc(element, value);
+                value = ParseInheritDoc(element, value, fullname);
                 value = ParseTypeParamRef(value);
                 value = ParseSee(value);
                 items.Add(new XmlDocumentMemberParameter(XmlDocumentMemberParameterType.TypeParm, name, value));
@@ -251,11 +252,12 @@ namespace Marqdouj.DotNet.General.CsDoc
         private static string? ParseComment(XElement node, string elementName)
         {
             var summary = new StringBuilder();
+            var fullname = node.Attribute("name")?.Value ?? "";
 
             foreach (var element in node.Elements(elementName))
             {
                 var value = GetRawComment(element, elementName);
-                value = ParseInheritDoc(element, value);
+                value = ParseInheritDoc(element, value, fullname);
                 value = ParseTypeParamRef(value);
                 value = ParseSee(value);
 
@@ -271,15 +273,21 @@ namespace Marqdouj.DotNet.General.CsDoc
         private static string GetRawComment(XElement element, string elementName)
         {
             var innerText = element.ToString().Trim();
+            var comment = element.Value.Trim();
+            var hasStart = innerText.StartsWith($"<{elementName}", StringComparison.OrdinalIgnoreCase);
+            var hasEnd = innerText.EndsWith($"</{elementName}>", StringComparison.OrdinalIgnoreCase);
 
-            var startPosnA = innerText.IndexOf($"<{elementName}", StringComparison.OrdinalIgnoreCase);
-            var startPosnB = innerText.IndexOf($">", startPosnA, StringComparison.OrdinalIgnoreCase);
-            var startText = innerText.Substring(startPosnA, startPosnB + 1);
+            //Must be enclosed within elementName to resolve raw comment.
+            if (!(hasStart && hasEnd))
+                return comment;
 
-            innerText = innerText.Replace(startText, "", StringComparison.OrdinalIgnoreCase);
-            innerText = innerText.Replace($"</{elementName}>", "", StringComparison.OrdinalIgnoreCase);
+            var startPosnEnd = innerText.IndexOf('>');
+            var endPosnStart = innerText.LastIndexOf($"</{elementName}>", StringComparison.OrdinalIgnoreCase);
+            var commentLength = endPosnStart - startPosnEnd - 1;
+            if (commentLength > 0)
+                comment = innerText.Substring(startPosnEnd + 1, commentLength).Trim();
 
-            return innerText;
+            return comment;
         }
 
         private static string ParseNameFromFullname(string refText)
@@ -379,7 +387,7 @@ namespace Marqdouj.DotNet.General.CsDoc
             return value;
         }
 
-        private static string ParseInheritDoc(XElement element, string value)
+        private static string ParseInheritDoc(XElement element, string value, string fullname)
         {
             var startPosn = value.IndexOf("<inheritdoc", StringComparison.OrdinalIgnoreCase);
 
@@ -399,7 +407,17 @@ namespace Marqdouj.DotNet.General.CsDoc
                         var crefNode = xmlDoc?.Descendants("member").FirstOrDefault(m => m.Attribute("name")?.Value == crefText);
 
                         if (crefNode != null)
-                            cRefValue = ParseComment(crefNode, "summary")?.Trim();
+                        {
+                            //Check for circular ref which will cause stack overflow.
+                            if (crefText != fullname)
+                            {
+                                cRefValue = ParseComment(crefNode, "summary")?.Trim();
+                            }
+                            else
+                            {
+                                cRefValue = "#ERROR - Circular Reference.#";
+                            }
+                        }
                     }
 
                     value = value.Replace(text, cRefValue);
@@ -433,27 +451,6 @@ namespace Marqdouj.DotNet.General.CsDoc
                     if (!string.IsNullOrWhiteSpace(refText))
                     {
                         subtext = ParseNameFromFullname(refText);
-                        //var namePosn = refText.LastIndexOf('.');
-                        //var paren = refText.IndexOf('(');
-
-                        //if (paren > -1)
-                        //{
-                        //    var index = refText.IndexOf('.');
-                        //    namePosn = index;
-
-                        //    while (index < paren)
-                        //    {
-                        //        var current = refText.IndexOf('.', index + 1);
-
-                        //        if (current < paren)
-                        //            namePosn = current;
-
-                        //        index = current;
-                        //    }
-                        //}
-
-                        //if (namePosn > -1)
-                        //    subtext = refText[(namePosn + 1)..];
                     }
 
                     if (string.IsNullOrWhiteSpace(subtext))

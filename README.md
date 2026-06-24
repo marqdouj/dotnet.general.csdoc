@@ -23,6 +23,10 @@
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.6.3`
+  - `XmlDocumentReader`.
+	- Added check for circular references when parsing comments.
+	- Updated logic for parsing comments.
 - `v10.6.2`
   - `XmlDocumentReader`.
 	- Fixed issue with parsing `XmlDocumentMember.Name` where the method has parameters.
