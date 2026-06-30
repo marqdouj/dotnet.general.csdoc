@@ -55,6 +55,7 @@ namespace Sandbox.XmlLib.Models
         /// My Test with no parameters.
         /// </summary>
         /// <returns></returns>
+        [Display(Name="MyTest with no parameters")]
         string? MyTest();
 
         /// <summary>
@@ -62,7 +63,7 @@ namespace Sandbox.XmlLib.Models
         /// </summary>
         /// <param name="flags">The 'flags' parameter.</param>
         /// <returns></returns>
-        [Display(Name = "My Flags")]
+        [Display(Name = "My Test with Flags")]
         string? MyTest(IEnumerable<bool> flags);
 
         /// <summary>
@@ -70,23 +71,15 @@ namespace Sandbox.XmlLib.Models
         /// </summary>
         /// <param name="item">The 'item' parameter.</param>
         /// <returns></returns>
-        [Display(Name = "My Flags")]
+        [Display(Name = "My Test with class")]
         string? MyTest(MyModelClassItem item);
-
-        /// <summary>
-        /// My Test with list.
-        /// </summary>
-        /// <param name="flags">The 'flags' parameter.</param>
-        /// <returns></returns>
-        [Display(Name = "My Flags")]
-        string? MyTest(List<bool> flags);
 
         /// <summary>
         /// My Test{T}.
         /// </summary>
         /// <param name="flags"></param>
         /// <returns></returns>
-        [Display(Name = "My Flags{T}")]
+        [Display(Name = "My Test {T} with {T flags}")]
         string? MyTest<T>(T flags);
 
         /// <summary>
@@ -95,7 +88,7 @@ namespace Sandbox.XmlLib.Models
         /// <param name="flags">The 'flags' parameter.</param>
         /// <param name="other">The 'other' parameter.</param>
         /// <returns></returns>
-        [Display(Name = "My Flags{T}")]
+        [Display(Name = "My Test {T,P} with {T flags, P other}")]
         string? MyTest<T, P>(T flags, P other);
 
         /// <summary>
@@ -105,7 +98,7 @@ namespace Sandbox.XmlLib.Models
         /// <param name="flag">The 'flag' parameter.</param>
         /// <param name="other">The 'other' parameter.</param>
         /// <returns></returns>
-        [Display(Name = "My Flags{T}")]
+        [Display(Name = "My Test {T,P} with {T flags, flag, P other}")]
         string? MyTest<T, P>(T flags, bool flag, P other);
 
         /// <summary>
@@ -190,7 +183,7 @@ namespace Sandbox.XmlLib.Models
         }
 
         /// <summary>
-        /// <inheritdoc cref="IMyFullModel.MyTest(List{bool})"/>
+        /// <inheritdoc cref="IMyFullModel.MyTest(IEnumerable{bool})"/>
         /// </summary>
         public string? MyTest(List<bool> flags)
         {
@@ -322,7 +315,7 @@ namespace Sandbox.XmlLib.Models
     /// <summary>
     /// My model class test.
     /// </summary>
-    [Display(Name = "MyClass Name")]
+    [Display(Name = "My Model Class")]
     public class MyModelClass : MyModelClassBase, IMyModelClass
     {
         /// <summary>
@@ -369,7 +362,7 @@ namespace Sandbox.XmlLib.Models
     /// <summary>
     /// Typed version of MyModelClass.
     /// </summary>
-    [Display(Name = "MyModelClass{T} Name")]
+    [Display(Name = "My Model Class{T}")]
     public class MyModelClass<T> where T : class
     {
         /// <summary>

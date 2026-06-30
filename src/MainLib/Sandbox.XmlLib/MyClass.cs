@@ -103,4 +103,17 @@ namespace Sandbox.XmlLib
 
         }
     }
+
+    /// <summary>
+    /// Class with nested class.
+    /// </summary>
+    [Display(Name = "My Class with Nested")]
+    public class MyClassWithNested
+    {
+        /// <summary>
+        /// A nested class.
+        /// </summary>
+        [Display(Name = "My Nested Class")]
+        public MyClass? MyNestedClass { get; set; }
+    }
 }

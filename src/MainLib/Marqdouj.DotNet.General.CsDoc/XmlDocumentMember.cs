@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace Marqdouj.DotNet.General.CsDoc
@@ -19,7 +20,7 @@ namespace Marqdouj.DotNet.General.CsDoc
         }
 
         /// <summary>
-        /// The position of the node in the XML documentation file.
+        /// The position of the node in the XML documentation file, or -999 if it was added as a missing node.
         /// </summary>
         public int Position { get; }
 
@@ -34,9 +35,27 @@ namespace Marqdouj.DotNet.General.CsDoc
         public string Name { get; }
 
         /// <summary>
+        /// Alias for the Name to use when resolving the <see cref="DisplayName"/>.
+        /// </summary>
+        public string? NameAlias { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="DisplayAttribute.Name"/> if it has a value, otherwise the <see cref="NameAlias"/>/<see cref="Name"/>.
+        /// </summary>
+        public string? DisplayName => string.IsNullOrEmpty(DisplayAttribute?.Name) ?
+            string.IsNullOrEmpty(NameAlias) ? Name : NameAlias :
+            DisplayAttribute?.Name;
+
+        /// <summary>
+        /// <see cref="DisplayAttribute"/>
+        /// </summary>
+        public DisplayAttribute? DisplayAttribute { get; set; }
+
+        /// <summary>
         /// The Type for members where <see cref="MemberType"/> is <see cref="MemberTypes.TypeInfo"/>.
         /// </summary>
-        /// <remarks>An attempt will be made to resolve the <see cref="Type"/> when creating the instance.
+        /// <remarks>An attempt will be made to resolve the <see cref="Type"/> when creating the instance
+        /// or when requesting members using a Type.
         /// If the attempt fails the value will be <see langword="null"/>.</remarks>
         public Type? Type { get; internal set; }
 
