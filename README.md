@@ -23,6 +23,17 @@
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.6.4`
+  - `XmlDocumentReader`.
+	- `GetMembers`. Added flag to the method for adding a `XmlDocumentMember` instance for missing type members.
+  - `XmlDocumentMember`.
+	- Added extension method:
+	  - `GetParameterByName`. Gets the first parameter that matches the `name`. Case in-sensitive.
+    - New Properties:
+	  - `NameAlias`.
+	  - `DisplayName`.
+	  - `DisplayAttribute`.
+  - `Sandbox`. Fixed issue with missing xml file when loading `DocumentReader` page.
 - `v10.6.3`
   - `XmlDocumentReader`.
 	- Added check for circular references when parsing comments.
@@ -32,8 +43,8 @@
 	- Fixed issue with parsing `XmlDocumentMember.Name` where the method has parameters.
   - `XmlDocumentMember`.
 	- Added extension methods:
-	  - `GetMemberByName`. Gets the first member that matches the `name` parameter.
-	  - `GetMembersWithName`. Gets all members that start with the `name` parameter.
+	  - `GetMemberByName`. Gets the first member that matches the `name` parameter. Case in-sensitive.
+	  - `GetMembersWithName`. Gets all members that start with the `name` parameter. Case in-sensitive.
 - `v10.6.1`
   - `XmlDocumentReader`.
 	- `LoadXml`. Added optional flag `throwAnyException`. Default is false.

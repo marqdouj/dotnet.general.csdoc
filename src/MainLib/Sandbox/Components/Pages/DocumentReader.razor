@@ -11,10 +11,11 @@
 
     <FluentToolbar>
         <FluentSelect Items="@typeItems"
-                      OptionText="@(o => o?.Name ?? "All")"
-                      OptionValue="@(o => o?.TypeName)"
+                      OptionText="@(o => o?.DisplayName ?? "All")"
+                      OptionValue="@(o => o?.Fullname)"
                       TOption="XmlDocumentMember"
                       ValueChanged="OnValueChanged" />
+        <FluentCheckbox @bind-Value="addMissing">Add Missing Members</FluentCheckbox>
     </FluentToolbar>
 
     <FluentStack Orientation="Orientation.Vertical">
@@ -58,6 +59,7 @@
     private XmlDocumentMember? activeRow;
     private readonly List<XmlDocumentMember?> typeItems = [];
     private List<XmlDocumentMember> filteredItems = [];
+    private bool addMissing;
 
     protected override void OnInitialized()
     {
@@ -67,7 +69,7 @@
             reader.LoadXml(logger: Logger, throwAnyException: true);
 
             var tMembers = reader.Members
-                .Where(e => e.MemberType == MemberTypes.TypeInfo || e.MemberType == MemberTypes.NestedType)
+                .Where(e => e.MemberType == MemberTypes.TypeInfo)
                 .OrderBy(e => e.Fullname);
 
             typeItems.Add(null);
@@ -83,7 +85,6 @@
 
     private void OnValueChanged(string? value)
     {
-        Console.WriteLine($"OnValueChanged: {value}");
         try
         {
             if (value == null)
@@ -92,7 +93,8 @@
                 return;
             }
 
-            filteredItems = reader!.GetMembers(value);
+            var m = typeItems.FirstOrDefault(e => e?.Fullname == value);
+            filteredItems = reader!.GetMembers(m!.Type!, addMissing);
         }
         catch (Exception ex)
         {

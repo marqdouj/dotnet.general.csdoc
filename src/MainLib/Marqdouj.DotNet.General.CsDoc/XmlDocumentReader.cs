@@ -81,6 +81,7 @@ namespace Marqdouj.DotNet.General.CsDoc
                 }
 
                 ParseMembers(xmlDoc, logger, types);
+                ProcessTypes(types);
             }
             catch (Exception ex)
             {
@@ -92,6 +93,14 @@ namespace Marqdouj.DotNet.General.CsDoc
                 throw LoadXmlException;
 
             return XmlLoaded;
+        }
+
+        private void ProcessTypes(List<Type> types)
+        {
+            foreach (var type in types)
+            {
+                _ = GetMembers(type);
+            }
         }
 
         /// <summary>
@@ -125,16 +134,18 @@ namespace Marqdouj.DotNet.General.CsDoc
         /// Gets all members for a specific Type.
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="addMissing">If a type member is not found a default memember will be added</param>
         /// <returns></returns>
-        public List<XmlDocumentMember> GetMembers<T>() => GetMembers(typeof(T));
+        public List<XmlDocumentMember> GetMembers<T>(bool addMissing = false) => GetMembers(typeof(T), addMissing);
 
         /// <summary>
         /// Gets all members for a specific Type.
         /// </summary>
         /// <param name="type"><inheritdoc cref="Type"/></param>
+        /// <param name="addMissing">If a type member is not found a default memember will be added</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public List<XmlDocumentMember> GetMembers(Type type)
+        public List<XmlDocumentMember> GetMembers(Type type, bool addMissing = false)
         {
             var cdocAssemblyName = type.Assembly.GetName().Name;
 
@@ -153,11 +164,13 @@ namespace Marqdouj.DotNet.General.CsDoc
                 members.AddRange(items);
             }
 
+            members.ProcessType(type, addMissing);
+
             return members;
         }
 
         /// <summary>
-        /// Gets all members for a specific TypeName.
+        /// Gets all existing members for a specific TypeName.
         /// </summary>
         /// <param name="typeName"></param>
         /// <returns></returns>
@@ -186,7 +199,7 @@ namespace Marqdouj.DotNet.General.CsDoc
                 if (string.IsNullOrWhiteSpace(fullname))
                     logger?.LogError("Attribute 'name' is missing for member at position {position}.", position);
 
-                var name = ParseNameFromFullname(fullname);
+                var name = XmlDocumentMemberExtensions.ParseNameFromFullname(fullname);
                 var member = new XmlDocumentMember(position, fullname, name)
                 {
                     MemberType = ParseMemberType(fullname),
@@ -290,75 +303,6 @@ namespace Marqdouj.DotNet.General.CsDoc
             return comment;
         }
 
-        private static string ParseNameFromFullname(string refText)
-        {
-            var dotPosn = refText.LastIndexOf('.');
-            var parenPosn = refText.IndexOf('(');
-            var tickPosn = refText.IndexOf('`');
-            var ctorPosn = refText.IndexOf("#ctor");
-            var cutoffPosn = -1;
-
-            if (ctorPosn > -1)
-            {
-                dotPosn = ctorPosn - 1;
-            }
-            else if (parenPosn > -1 && tickPosn > -1)
-            {
-                if (tickPosn < parenPosn)
-                {
-                    //If dot is in beween then use that posn.
-                    var posn = refText.IndexOf('.', tickPosn);
-                    if (posn > -1 && posn < parenPosn)
-                    {
-                        dotPosn = posn;
-                    }
-                    else if (dotPosn > parenPosn)
-                    {
-                        cutoffPosn = tickPosn;
-                    }
-                }
-                else
-                {
-                    cutoffPosn = parenPosn;
-                }
-            }
-            else if (parenPosn > -1)
-            {
-                cutoffPosn = parenPosn;
-            }
-
-            var name = "";
-
-            if (cutoffPosn > -1)
-            {
-                var index = refText.IndexOf('.');
-                dotPosn = index;
-
-                while (index < cutoffPosn)
-                {
-                    index++;
-                    var current = refText.IndexOf('.', index);
-                   
-
-                    if (current < 0)
-                    {
-                        index = cutoffPosn;
-                        continue;
-                    }
-
-                    if (current < cutoffPosn)
-                        dotPosn = current;
-
-                    index = current;
-                }
-            }
-
-            if (dotPosn > -1)
-                name = refText[(dotPosn + 1)..];
-
-            return name;
-        }
-
         private static string ParseTypeParamRef(string value)
         {
             var startPosn = value.IndexOf("<typeparamref", StringComparison.OrdinalIgnoreCase);
@@ -450,7 +394,7 @@ namespace Marqdouj.DotNet.General.CsDoc
 
                     if (!string.IsNullOrWhiteSpace(refText))
                     {
-                        subtext = ParseNameFromFullname(refText);
+                        subtext = XmlDocumentMemberExtensions.ParseNameFromFullname(refText);
                     }
 
                     if (string.IsNullOrWhiteSpace(subtext))

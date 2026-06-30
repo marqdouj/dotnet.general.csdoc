@@ -1,4 +1,5 @@
 ﻿using Marqdouj.DotNet.General.CsDoc;
+using Sandbox.XmlLib;
 using Sandbox.XmlLib.Models;
 
 namespace Sandbox.Tests
@@ -26,10 +27,53 @@ namespace Sandbox.Tests
         {
             var members = docReader.GetMembers<IMyFullModel>();
 
+            foreach (var item in members)
+            {
+                Console.WriteLine($"{item.Fullname} - {item.DisplayName}");
+            }
             Assert.IsNotNull(members);
-            Assert.HasCount(12, members);
+            Assert.HasCount(11, members);
         }
 
+        [TestMethod]
+        public void XmlDocumentReader_GetMembers_ByType_T()
+        {
+            var members = docReader.GetMembers(typeof(MyModelClass<>));
+
+            foreach (var item in members)
+            {
+                Console.WriteLine($"{item.Fullname} - {item.DisplayName}");
+            }
+            Assert.IsNotNull(members);
+            Assert.HasCount(4, members);
+        }
+
+        [TestMethod]
+        public void XmlDocumentReader_GetMembers_ByType_Enum()
+        {
+            var members = docReader.GetMembers<MyModelEnum>();
+
+            Assert.IsNotNull(members);
+            Assert.HasCount(4, members);
+        }
+
+        [TestMethod]
+        public void XmlDocumentReader_GetMembers_ByType_Enum_AddMissing()
+        {
+            var members = docReader.GetMembers<MyEnum>(true);
+
+            Assert.IsNotNull(members);
+            Assert.HasCount(4, members);
+        }
+
+        [TestMethod]
+        public void XmlDocumentReader_GetMembers_ByType_Nested()
+        {
+            var members = docReader.GetMembers<MyClassWithNested>();
+
+            Assert.IsNotNull(members);
+            Assert.HasCount(2, members);
+        }
 
         [TestMethod]
         public void XmlDocumentReader_GetMembers_ByTypeName()
@@ -38,7 +82,7 @@ namespace Sandbox.Tests
             var members = docReader.GetMembers(type.FullName!);
 
             Assert.IsNotNull(members);
-            Assert.HasCount(12, members);
+            Assert.HasCount(11, members);
         }
 
         [TestMethod]
@@ -57,7 +101,7 @@ namespace Sandbox.Tests
             var myTestMembers = members.GetMembersWithName(nameof(IMyFullModel.MyTest));
 
             Assert.IsNotNull(myTestMembers);
-            Assert.HasCount(7, myTestMembers);
+            Assert.HasCount(6, myTestMembers);
         }
 
         [TestMethod]

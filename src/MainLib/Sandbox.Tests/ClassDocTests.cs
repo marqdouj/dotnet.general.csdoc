@@ -252,7 +252,7 @@ namespace Sandbox.Tests
             var doc = cdReader.CreateDocument<IMyFullModel>();
             var items = doc.GetItems(nameof(IMyFullModel.MyTest));
 
-            Assert.HasCount(7, items);
+            Assert.HasCount(6, items);
 
             foreach (var item in items)
             {
