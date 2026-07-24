@@ -14,28 +14,38 @@
     /// <summary>
     /// The 'Parameter' node information.
     /// </summary>
-    public class XmlDocumentMemberParameter
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="XmlDocumentMemberParameter"/> class.
+    /// </remarks>
+    /// <param name="parameterType"></param>
+    /// <param name="name"></param>
+    /// <param name="value"></param>
+    public class XmlDocumentMemberParameter(XmlDocumentMemberParameterType parameterType, string name, string value)
     {
-        internal XmlDocumentMemberParameter(XmlDocumentMemberParameterType parameterType, string name, string value)
-        {
-            ParameterType = parameterType;
-            Name = name;
-            Value = value;
-        }
 
         /// <summary>
         /// <inheritdoc cref="XmlDocumentMemberParameterType"/>
         /// </summary>
-        public XmlDocumentMemberParameterType ParameterType { get; }
+        public XmlDocumentMemberParameterType ParameterType { get; } = parameterType;
 
         /// <summary>
         /// The 'name' value for the node.
         /// </summary>
-        public string Name { get; }
+        public string Name { get; } = name;
+
+        /// <summary>
+        /// The 'alias' value for the node.
+        /// </summary>
+        public string? Alias { get; set; }
+
+        /// <summary>
+        /// <inheritdoc cref="Name"/> if <see cref="Alias"/> is null or empty, otherwise <see cref="Alias"/>.
+        /// </summary>
+        public string? DisplayName => string.IsNullOrEmpty(Alias) ? Name : Alias;
 
         /// <summary>
         /// The resolved text for the node.
         /// </summary>
-        public string Value { get; }
+        public string Value { get; } = value;
     }
 }

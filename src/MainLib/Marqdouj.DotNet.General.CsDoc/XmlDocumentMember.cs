@@ -88,8 +88,12 @@ namespace Marqdouj.DotNet.General.CsDoc
         /// The 'Param/TypeParam' node information.
         /// </summary>
         public IReadOnlyCollection<XmlDocumentMemberParameter> Parameters { get; }
-
-        internal void SetParameters(IEnumerable<XmlDocumentMemberParameter> parameters)
+        
+        /// <summary>
+        /// Sets the parameters for the member.
+        /// </summary>
+        /// <param name="parameters">The parameters to set.</param>
+        public void SetParameters(IEnumerable<XmlDocumentMemberParameter> parameters)
         {
             this.parameters.Clear();
             this.parameters.AddRange(parameters);

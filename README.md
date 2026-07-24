@@ -23,6 +23,13 @@
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.6.5`
+  - `XmlDocumentMemberParameter`. 
+	  - Constructor is now public.
+	  - `Alias`. New property for the parameter name alias.
+	  - `DisplayName`. New property for the parameter display name.
+  	- `XmlDocumentMember`
+		- `SetParameters`. Method is now public.
 - `v10.6.4`
   - `XmlDocumentReader`.
 	- `GetMembers`. Added flag to the method for adding a `XmlDocumentMember` instance for missing type members.
