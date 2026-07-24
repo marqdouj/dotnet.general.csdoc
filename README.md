@@ -28,7 +28,7 @@
 	  - Constructor is now public.
 	  - `Alias`. New property for the parameter name alias.
 	  - `DisplayName`. New property for the parameter display name.
-  	- `XmlDocumentMember`
+  - `XmlDocumentMember`
 		- `SetParameters`. Method is now public.
 - `v10.6.4`
   - `XmlDocumentReader`.
