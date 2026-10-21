@@ -23,6 +23,8 @@
 	- Currently supported objects are `Enum`, `MemberInfo`, `PropertyInfo`, `Type`.
 
 ## Releases
+- `v10.6.6`
+  - Update NuGet packages.
 - `v10.6.5`
   - `XmlDocumentMemberParameter`. 
 	  - Constructor is now public.
