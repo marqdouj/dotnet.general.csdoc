@@ -1,17 +1,12 @@
 ﻿@rendermode InteractiveServer
 
-<div class="navmenu">
-    <input type="checkbox" title="Menu expand/collapse toggle" id="navmenu-toggle" class="navmenu-icon" />
-    <label for="navmenu-toggle" class="navmenu-icon"><FluentIcon Value="@(new Icons.Regular.Size20.Navigation())" Color="Color.Fill" /></label>
-    <nav class="sitenav" aria-labelledby="main-menu">
-        <FluentNavMenu Id="main-menu" Collapsible="true" Width="250" Title="Navigation menu" @bind-Expanded="expanded" CustomToggle="true">
-            <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">Home</FluentNavLink>
-            <FluentNavLink Href="documents" Icon="@(new Icons.Regular.Size20.Document())" IconColor="Color.Accent">Documents</FluentNavLink>
-            <FluentNavLink Href="document-reader" Icon="@(new Icons.Regular.Size20.BookOpenLightbulb())" IconColor="Color.Accent">Document Reader</FluentNavLink>
-        </FluentNavMenu>
-    </nav>
-</div>
+<FluentNav Id="main-menu" Width="260px">
+    <FluentNavItem Href="/" Match="NavLinkMatch.All" IconRest="@(new Icons.Regular.Size20.Home())" IconActive="@(new Icons.Filled.Size20.Home())">Home</FluentNavItem>
+    <FluentNavItem Href="counter" IconRest="@(new Icons.Regular.Size20.NumberSymbolSquare())" IconActive="@(new Icons.Filled.Size20.NumberSymbolSquare())">Counter</FluentNavItem>
+    <FluentNavItem Href="weather" IconRest="@(new Icons.Regular.Size20.WeatherPartlyCloudyDay())" IconActive="@(new Icons.Filled.Size20.WeatherPartlyCloudyDay())">Weather</FluentNavItem>
+    <FluentNavItem Href="documents" IconRest="@(new Icons.Regular.Size20.Document())" IconActive="@(new Icons.Filled.Size20.Document())">Documents</FluentNavItem>
+    <FluentNavItem Href="document-reader" IconRest="@(new Icons.Regular.Size20.BookOpenLightbulb())" IconActive="@(new Icons.Filled.Size20.BookOpenLightbulb())">Document Reader</FluentNavItem>
+</FluentNav>
 
 @code {
-    private bool expanded = true;
 }

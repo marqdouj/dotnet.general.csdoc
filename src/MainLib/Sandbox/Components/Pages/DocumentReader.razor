@@ -2,21 +2,24 @@
 @rendermode InteractiveServer
 @using System.Reflection
 @inject ILogger<DocumentReader> Logger
-@inject IToastService ToastService
+@inject INotificationService ToastService
 
 <PageTitle>Document Reader</PageTitle>
 
-<FluentLayout>
-    <FluentHeader>Document Reader</FluentHeader>
+<FluentStack Height="100%" Orientation="Orientation.Vertical">
+    <FluentLayoutItem Area="LayoutArea.Header">
+        Document Reader
+    </FluentLayoutItem>
 
-    <FluentToolbar>
+    <Toolbar>
         <FluentSelect Items="@typeItems"
                       OptionText="@(o => o?.DisplayName ?? "All")"
                       OptionValue="@(o => o?.Fullname)"
                       TOption="XmlDocumentMember"
+                      TValue="string"
                       ValueChanged="OnValueChanged" />
         <FluentCheckbox @bind-Value="addMissing">Add Missing Members</FluentCheckbox>
-    </FluentToolbar>
+    </Toolbar>
 
     <FluentStack Orientation="Orientation.Vertical">
         <div style="width:100%; height:400px; overflow:auto">
@@ -24,7 +27,7 @@
                             TGridItem="XmlDocumentMember"
                             ResizableColumns="true"
                             RowSize="DataGridRowSize.Medium"
-                            GenerateHeader="GenerateHeaderOption.Sticky"
+                            GenerateHeader="DataGridGeneratedHeaderType.Sticky"
                             MultiLine="true"
                             AutoFit="true">
                 <PropertyColumn Property="@(c => c.Position)" />
@@ -52,7 +55,7 @@
             </FluentStack>
         </FluentCard>
     </FluentStack>
-</FluentLayout>
+</FluentStack>
 
 @code {
     private XmlDocumentReader? reader;
@@ -61,7 +64,7 @@
     private List<XmlDocumentMember> filteredItems = [];
     private bool addMissing;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         try
         {
@@ -74,16 +77,16 @@
 
             typeItems.Add(null);
             typeItems.AddRange(tMembers);
-            OnValueChanged(typeItems.FirstOrDefault()?.TypeName);
+            await OnValueChanged(typeItems.FirstOrDefault()?.TypeName);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, null);
-            ToastService.ShowError(ex.Message);
+            await ToastService.ShowError(ex.Message);
         }
     }
 
-    private void OnValueChanged(string? value)
+    private async Task OnValueChanged(string? value)
     {
         try
         {
@@ -99,7 +102,7 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, null);
-            ToastService.ShowError(ex.Message);
+            await ToastService.ShowError(ex.Message);
         }
     }
 
